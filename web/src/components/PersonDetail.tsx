@@ -296,7 +296,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
             </div>
           )}
 
-          {person.marriage_age > 0 && (
+          {(person.marriage_age ?? 0) > 0 && (
             <div style={styles.row}>
               <span style={styles.label}>Married at Age:</span>
               <span style={styles.value}>{person.marriage_age}</span>
