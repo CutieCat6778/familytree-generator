@@ -1,0 +1,18 @@
+services:
+  familytree-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data:ro
+      - ./web/dist:/web/dist:ro
+    command:
+      - ./familytree-server
+      - -port
+      - "8080"
+      - -data
+      - /data
+      - -web
+      - /web/dist
