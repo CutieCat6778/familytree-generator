@@ -17,9 +17,9 @@ import (
 
 // Server holds the HTTP server configuration and dependencies
 type Server struct {
-	repo   *data.Repository
-	addr   string
-	webDir string
+	repo        *data.Repository
+	addr        string
+	webDir      string
 	rateLimiter *RateLimiter
 }
 
@@ -62,17 +62,44 @@ func (s *Server) Start() error {
 // corsMiddleware adds CORS headers to responses
 func (s *Server) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := strings.TrimSuffix(r.Header.Get("Origin"), "/")
+		if origin != "" && !isAllowedOrigin(origin) {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		if origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Add("Vary", "Origin")
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if reqHeaders := r.Header.Get("Access-Control-Request-Headers"); reqHeaders != "" {
+			w.Header().Set("Access-Control-Allow-Headers", reqHeaders)
+			w.Header().Add("Vary", "Access-Control-Request-Headers")
+		} else {
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		}
 
 		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
+			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 
 		next(w, r)
 	}
+}
+
+func isAllowedOrigin(origin string) bool {
+	if strings.HasPrefix(origin, "https://familytree-generator.vercel.app") {
+		return true
+	}
+	if strings.HasPrefix(origin, "http://localhost") {
+		return true
+	}
+	if strings.HasPrefix(origin, "http://127.0.0.1") {
+		return true
+	}
+	return false
 }
 
 // GenerateRequest represents a tree generation request
