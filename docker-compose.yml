@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8080:3005"
     volumes:
       - ./data:/data:ro
       - ./web/dist:/web/dist:ro
@@ -14,5 +14,3 @@ services:
       - "8080"
       - -data
       - /data
-      - -web
-      - /web/dist
