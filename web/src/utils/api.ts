@@ -1,4 +1,4 @@
-import { GenerateRequest, GenerateResponse, CountriesResponse, VisualizationData } from '../types';
+import { GenerateRequest, GenerateResponse, CountriesResponse } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
