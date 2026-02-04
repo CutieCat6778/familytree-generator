@@ -7,9 +7,7 @@ services:
       - "3005:3005"
     volumes:
       - ./data:/data:ro
-      - ./web/dist:/web/dist:ro
     command:
-      - ./familytree-server
       - -port
       - "3005"
       - -data

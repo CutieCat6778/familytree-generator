@@ -13,5 +13,5 @@ FROM alpine:3.19
 WORKDIR /app
 COPY --from=build /out/familytree-server ./familytree-server
 
-EXPOSE 8080
+EXPOSE 3005 
 ENTRYPOINT ["./familytree-server"]
