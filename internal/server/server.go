@@ -90,7 +90,7 @@ func (s *Server) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func isAllowedOrigin(origin string) bool {
-	if strings.HasPrefix(origin, "https://familytree.thinis.de/") {
+	if strings.HasPrefix(origin, "https://familytree.thinis.de") {
 		return true
 	}
 	if strings.HasPrefix(origin, "http://localhost") {
