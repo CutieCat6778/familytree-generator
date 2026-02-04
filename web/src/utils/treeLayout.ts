@@ -1,22 +1,19 @@
 import { VisualizationData, VisualizationNode, TreeNode } from '../types';
 
-  
-                                                                     
-  
 export function buildTreeHierarchy(data: VisualizationData): TreeNode | null {
   const nodeMap = new Map<string, TreeNode>();
   const childrenMap = new Map<string, string[]>();
   const spouseMap = new Map<string, string>();
 
-  
+
   data.nodes.forEach(node => {
     nodeMap.set(node.id, { ...node, children: [] });
   });
 
-  
+
   data.edges.forEach(edge => {
     if (edge.type === 'parent') {
-      
+
       const children = childrenMap.get(edge.source) || [];
       children.push(edge.target);
       childrenMap.set(edge.source, children);
@@ -26,11 +23,11 @@ export function buildTreeHierarchy(data: VisualizationData): TreeNode | null {
     }
   });
 
-  
+
   const rootNode = nodeMap.get(data.root_id);
   if (!rootNode) return null;
 
-  
+
   function buildDescendantTree(nodeId: string, visited: Set<string>): TreeNode | null {
     if (visited.has(nodeId)) return null;
     visited.add(nodeId);
@@ -40,7 +37,7 @@ export function buildTreeHierarchy(data: VisualizationData): TreeNode | null {
 
     const treeNode: TreeNode = { ...node, children: [] };
 
-    
+
     const childIds = childrenMap.get(nodeId) || [];
     childIds.forEach(childId => {
       const childNode = buildDescendantTree(childId, visited);
@@ -49,7 +46,7 @@ export function buildTreeHierarchy(data: VisualizationData): TreeNode | null {
       }
     });
 
-    
+
     const spouseId = spouseMap.get(nodeId);
     if (spouseId) {
       treeNode.spouse = nodeMap.get(spouseId);
@@ -58,18 +55,18 @@ export function buildTreeHierarchy(data: VisualizationData): TreeNode | null {
     return treeNode;
   }
 
-  
+
   return buildDescendantTree(data.root_id, new Set());
 }
 
-  
-                                                 
-  
+
+
+
 export function calculateTreeDimensions(nodeCount: number): { width: number; height: number } {
   const baseWidth = 1200;
   const baseHeight = 800;
 
-  
+
   const scale = Math.max(1, Math.sqrt(nodeCount / 10));
 
   return {
@@ -78,19 +75,19 @@ export function calculateTreeDimensions(nodeCount: number): { width: number; hei
   };
 }
 
-  
-                                          
-  
+
+
+
 export function getPersonColor(gender: 'M' | 'F', isAlive: boolean): string {
   if (!isAlive) {
-    return gender === 'M' ? '#7a9cc6' : '#c6a7b8'; 
+    return gender === 'M' ? '#7a9cc6' : '#c6a7b8';
   }
-  return gender === 'M' ? '#4a90d9' : '#d94a7b'; 
+  return gender === 'M' ? '#4a90d9' : '#d94a7b';
 }
 
-  
-                              
-  
+
+
+
 export function formatPersonLabel(node: VisualizationNode): string {
   const years = node.death_year
     ? `${node.birth_year}-${node.death_year}`
