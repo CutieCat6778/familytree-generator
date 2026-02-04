@@ -12,6 +12,8 @@ FROM alpine:3.19
 
 WORKDIR /app
 COPY --from=build /out/familytree-server ./familytree-server
+COPY --from=build /src/data /data
 
 EXPOSE 3005 
 ENTRYPOINT ["./familytree-server"]
+CMD ["-port", "3005", "-data", "/data"]

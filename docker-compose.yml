@@ -5,10 +5,3 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3005:3005"
-    volumes:
-      - ./data:/data:ro
-    command:
-      - -port
-      - "3005"
-      - -data
-      - /data
