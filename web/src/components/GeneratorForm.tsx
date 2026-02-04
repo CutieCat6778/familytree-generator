@@ -104,7 +104,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({ onGenerate, onErro
   const [extended, setExtended] = useState(false);
 
   useEffect(() => {
-    // Check API availability and load countries
+    
     const init = async () => {
       const online = await isApiAvailable();
       setApiOnline(online);

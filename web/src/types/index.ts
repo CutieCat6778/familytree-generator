@@ -1,4 +1,4 @@
-// Types matching the Go visualization JSON output
+
 
 export interface VisualizationData {
   id: string;
@@ -66,11 +66,11 @@ export interface VisualizationStats {
   employed_count: number;
 }
 
-// D3 hierarchy types
+
 export interface TreeNode extends VisualizationNode {
   children?: TreeNode[];
   spouse?: VisualizationNode;
-  _children?: TreeNode[]; // For collapsed nodes
+  _children?: TreeNode[]; 
 }
 
 export interface HierarchyNode {
@@ -80,7 +80,7 @@ export interface HierarchyNode {
   children?: HierarchyNode[];
 }
 
-// API types
+
 export interface GenerateRequest {
   country: string;
   generations: number;

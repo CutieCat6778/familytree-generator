@@ -99,7 +99,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats, country, seed, re
         <span style={styles.value}>{referenceYear ?? new Date().getFullYear()}</span>
       </div>
 
-      {/* Population Section */}
+      {                     }
       <div style={styles.section}>
         <div style={styles.sectionTitle}>Population</div>
         <div style={styles.stat}>
@@ -129,7 +129,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats, country, seed, re
         </div>
       </div>
 
-      {/* Age Section */}
+      {              }
       <div style={styles.section}>
         <div style={styles.sectionTitle}>Age</div>
         <div style={styles.stat}>
@@ -143,7 +143,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats, country, seed, re
         </div>
       </div>
 
-      {/* Family Section */}
+      {                 }
       <div style={styles.section}>
         <div style={styles.sectionTitle}>Family</div>
         <div style={styles.stat}>
@@ -180,7 +180,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats, country, seed, re
         </div>
       </div>
 
-      {/* Education & Employment */}
+      {                         }
       <div style={styles.section}>
         <div style={styles.sectionTitle}>Education & Work</div>
         <div style={styles.stat}>

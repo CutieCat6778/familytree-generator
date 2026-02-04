@@ -9,7 +9,7 @@ import (
 	"github.com/familytree-generator/internal/model"
 )
 
-// WriteJSON writes the family tree to a JSON file
+
 func WriteJSON(tree *model.FamilyTree, filepath string) error {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -27,7 +27,7 @@ func WriteJSON(tree *model.FamilyTree, filepath string) error {
 	return nil
 }
 
-// WriteJSONCompact writes the family tree to a compact JSON file
+
 func WriteJSONCompact(tree *model.FamilyTree, filepath string) error {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -44,17 +44,17 @@ func WriteJSONCompact(tree *model.FamilyTree, filepath string) error {
 	return nil
 }
 
-// TreeToJSON converts the tree to a JSON byte slice
+
 func TreeToJSON(tree *model.FamilyTree) ([]byte, error) {
 	return json.MarshalIndent(tree, "", "  ")
 }
 
-// TreeToJSONCompact converts the tree to a compact JSON byte slice
+
 func TreeToJSONCompact(tree *model.FamilyTree) ([]byte, error) {
 	return json.Marshal(tree)
 }
 
-// VisualizationData is a simplified structure for web visualization
+
 type VisualizationData struct {
 	ID          string                `json:"id"`
 	RootID      string                `json:"root_id"`
@@ -67,7 +67,7 @@ type VisualizationData struct {
 	Stats       VisualizationStats    `json:"stats"`
 }
 
-// VisualizationNode represents a person for visualization
+
 type VisualizationNode struct {
 	ID                  string  `json:"id"`
 	Name                string  `json:"name"`
@@ -97,14 +97,14 @@ type VisualizationNode struct {
 	CurrentCountry      string  `json:"current_country"`
 }
 
-// VisualizationEdge represents a relationship for visualization
+
 type VisualizationEdge struct {
 	Source string `json:"source"`
 	Target string `json:"target"`
-	Type   string `json:"type"` // "parent", "spouse"
+	Type   string `json:"type"` 
 }
 
-// VisualizationStats holds summary statistics
+
 type VisualizationStats struct {
 	TotalPersons        int     `json:"total_persons"`
 	TotalFamilies       int     `json:"total_families"`
@@ -124,7 +124,7 @@ type VisualizationStats struct {
 	EmployedCount       int     `json:"employed_count"`
 }
 
-// WriteVisualizationJSON writes a simplified JSON for web visualization
+
 func WriteVisualizationJSON(tree *model.FamilyTree, filepath string) error {
 	data := TreeToVisualizationData(tree)
 
@@ -144,7 +144,7 @@ func WriteVisualizationJSON(tree *model.FamilyTree, filepath string) error {
 	return nil
 }
 
-// TreeToVisualizationData converts a tree to visualization-friendly format
+
 func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 	persons := tree.GetAllPersons()
 	referenceYear := 0
@@ -202,7 +202,7 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 	var ageCount int
 	var oldestAge int
 
-	// Create nodes
+	
 	for _, p := range persons {
 		var deathYear *int
 		if p.DeathDate != nil {
@@ -240,21 +240,21 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 		}
 		data.Nodes = append(data.Nodes, node)
 
-		// Calculate stats
+		
 		if p.IsAlive() {
 			data.Stats.LivingPersons++
 		} else {
 			data.Stats.DeceasedPersons++
 		}
 
-		// Gender stats
+		
 		if p.Gender == model.Male {
 			data.Stats.MaleCount++
 		} else {
 			data.Stats.FemaleCount++
 		}
 
-		// Marital status stats
+		
 		switch p.MaritalStatus {
 		case model.Single:
 			data.Stats.SingleCount++
@@ -264,17 +264,17 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 			data.Stats.DivorceCount++
 		}
 
-		// Education stats
+		
 		if p.Education == model.Tertiary {
 			data.Stats.TertiaryEducation++
 		}
 
-		// Employment stats
+		
 		if p.Employment == model.Employed {
 			data.Stats.EmployedCount++
 		}
 
-		// Births outside marriage
+		
 		if p.BornOutsideMarriage {
 			data.Stats.BirthsOutsideMarriage++
 		}
@@ -293,7 +293,7 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 		}
 	}
 
-	// Create edges for parent relationships
+	
 	for _, p := range persons {
 		if p.FatherID != nil {
 			data.Edges = append(data.Edges, VisualizationEdge{
@@ -311,7 +311,7 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 		}
 	}
 
-	// Create edges for spouse relationships
+	
 	seen := make(map[string]bool)
 	for _, p := range persons {
 		for _, spouseID := range p.SpouseIDs {
@@ -328,7 +328,7 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 		}
 	}
 
-	// Finalize stats
+	
 	data.Stats.TotalPersons = tree.PersonCount()
 	data.Stats.TotalFamilies = tree.FamilyCount()
 	if ageCount > 0 {
@@ -336,7 +336,7 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 	}
 	data.Stats.OldestPerson = oldestAge
 
-	// Count children and calculate average
+	
 	for _, f := range tree.GetAllFamilies() {
 		data.Stats.TotalChildren += f.ChildCount()
 	}

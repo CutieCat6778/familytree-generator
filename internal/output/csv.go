@@ -9,7 +9,7 @@ import (
 	"github.com/familytree-generator/internal/model"
 )
 
-// WriteCSV writes the family tree to a CSV file
+
 func WriteCSV(tree *model.FamilyTree, filepath string) error {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -20,7 +20,7 @@ func WriteCSV(tree *model.FamilyTree, filepath string) error {
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
-	// Write header
+	
 	header := []string{
 		"id",
 		"first_name",
@@ -45,7 +45,7 @@ func WriteCSV(tree *model.FamilyTree, filepath string) error {
 		return fmt.Errorf("writing header: %w", err)
 	}
 
-	// Write persons
+	
 	for _, person := range tree.GetAllPersons() {
 		row := personToRow(person)
 		if err := writer.Write(row); err != nil {
@@ -56,7 +56,7 @@ func WriteCSV(tree *model.FamilyTree, filepath string) error {
 	return nil
 }
 
-// personToRow converts a person to a CSV row
+
 func personToRow(p *model.Person) []string {
 	deathDate := ""
 	if p.DeathDate != nil {
@@ -99,7 +99,7 @@ func personToRow(p *model.Person) []string {
 	}
 }
 
-// WriteFamiliesCSV writes families to a separate CSV file
+
 func WriteFamiliesCSV(tree *model.FamilyTree, filepath string) error {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -110,7 +110,7 @@ func WriteFamiliesCSV(tree *model.FamilyTree, filepath string) error {
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
-	// Write header
+	
 	header := []string{
 		"id",
 		"husband_id",
@@ -125,7 +125,7 @@ func WriteFamiliesCSV(tree *model.FamilyTree, filepath string) error {
 		return fmt.Errorf("writing header: %w", err)
 	}
 
-	// Write families
+	
 	for _, family := range tree.GetAllFamilies() {
 		row := familyToRow(family)
 		if err := writer.Write(row); err != nil {
@@ -136,7 +136,7 @@ func WriteFamiliesCSV(tree *model.FamilyTree, filepath string) error {
 	return nil
 }
 
-// familyToRow converts a family to a CSV row
+
 func familyToRow(f *model.Family) []string {
 	husbandID := ""
 	if f.HusbandID != nil {

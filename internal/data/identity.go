@@ -10,38 +10,34 @@ import (
 	"strings"
 )
 
-// NameRecord represents a forename from the forenames.csv
 type NameRecord struct {
-	Country       string // ISO 2-letter code
+	Country       string
 	CountryGroup  int
 	Region        string
 	Year          int
-	Index         int    // Popularity rank
-	Gender        string // "M" or "F"
+	Index         int
+	Gender        string
 	LocalizedName string
 	RomanizedName string
 }
 
-// SurnameRecord represents a surname from the surnames.csv
 type SurnameRecord struct {
-	Country       string // ISO 2-letter code
+	Country       string
 	Rank          int
 	LocalizedName string
 	RomanizedName string
 }
 
-// IdentityData holds all name-related data
 type IdentityData struct {
-	Forenames    map[string][]NameRecord    // ISO code -> names list
-	Surnames     map[string][]SurnameRecord // ISO code -> surnames list
-	CountryCodes map[string]string          // ISO code -> country name
-	// Reverse lookup: country name (lowercase) -> ISO code
+	Forenames    map[string][]NameRecord
+	Surnames     map[string][]SurnameRecord
+	CountryCodes map[string]string
+
 	NameToCode map[string]string
-	// Slug to ISO code mapping
+
 	SlugToCode map[string]string
 }
 
-// LoadIdentityData loads all identity-related data files
 func LoadIdentityData(dataDir string) (*IdentityData, error) {
 	id := &IdentityData{
 		Forenames:    make(map[string][]NameRecord),
@@ -51,27 +47,22 @@ func LoadIdentityData(dataDir string) (*IdentityData, error) {
 		SlugToCode:   make(map[string]string),
 	}
 
-	// Load country codes first
 	if err := LoadJSON(filepath.Join(dataDir, "countries-code.json"), &id.CountryCodes); err != nil {
 		return nil, fmt.Errorf("loading countries-code.json: %w", err)
 	}
 
-	// Build reverse lookups
 	for code, name := range id.CountryCodes {
 		nameLower := strings.ToLower(name)
 		id.NameToCode[nameLower] = code
 
-		// Create slug from name
 		slug := toSlug(name)
 		id.SlugToCode[slug] = code
 	}
 
-	// Load forenames
 	if err := id.loadForenames(filepath.Join(dataDir, "forenames.csv")); err != nil {
 		return nil, fmt.Errorf("loading forenames.csv: %w", err)
 	}
 
-	// Load surnames
 	if err := id.loadSurnames(filepath.Join(dataDir, "surnames.csv")); err != nil {
 		return nil, fmt.Errorf("loading surnames.csv: %w", err)
 	}
@@ -85,7 +76,6 @@ func (id *IdentityData) loadForenames(filepath string) error {
 		return err
 	}
 
-	// Remove BOM
 	data = bytes.TrimPrefix(data, []byte{0xEF, 0xBB, 0xBF})
 
 	reader := csv.NewReader(bytes.NewReader(data))
@@ -94,7 +84,6 @@ func (id *IdentityData) loadForenames(filepath string) error {
 		return err
 	}
 
-	// Skip header: Country,Country Group,Region,Population,Note,Year,Romanization,Index,Name Group,Gender,Localized Name,Romanized Name
 	for _, row := range records[1:] {
 		if len(row) < 12 {
 			continue
@@ -115,7 +104,6 @@ func (id *IdentityData) loadForenames(filepath string) error {
 			RomanizedName: strings.TrimSpace(row[11]),
 		}
 
-		// Use romanized name if available, otherwise localized
 		if record.RomanizedName == "" {
 			record.RomanizedName = record.LocalizedName
 		}
@@ -132,7 +120,6 @@ func (id *IdentityData) loadSurnames(filepath string) error {
 		return err
 	}
 
-	// Remove BOM
 	data = bytes.TrimPrefix(data, []byte{0xEF, 0xBB, 0xBF})
 
 	reader := csv.NewReader(bytes.NewReader(data))
@@ -141,7 +128,6 @@ func (id *IdentityData) loadSurnames(filepath string) error {
 		return err
 	}
 
-	// Skip header: Country,Rank,Index,Name Group,Localized Name,Romanized Name,Count,Percent
 	for _, row := range records[1:] {
 		if len(row) < 6 {
 			continue
@@ -156,7 +142,6 @@ func (id *IdentityData) loadSurnames(filepath string) error {
 			RomanizedName: strings.TrimSpace(row[5]),
 		}
 
-		// Use romanized name if available, otherwise localized
 		if record.RomanizedName == "" {
 			record.RomanizedName = record.LocalizedName
 		}
@@ -167,12 +152,10 @@ func (id *IdentityData) loadSurnames(filepath string) error {
 	return nil
 }
 
-// GetForenames returns forenames for a country by ISO code
 func (id *IdentityData) GetForenames(isoCode string) []NameRecord {
 	return id.Forenames[isoCode]
 }
 
-// GetForenamesByGender returns forenames filtered by gender
 func (id *IdentityData) GetForenamesByGender(isoCode, gender string) []NameRecord {
 	all := id.Forenames[isoCode]
 	var filtered []NameRecord
@@ -184,27 +167,22 @@ func (id *IdentityData) GetForenamesByGender(isoCode, gender string) []NameRecor
 	return filtered
 }
 
-// GetSurnames returns surnames for a country by ISO code
 func (id *IdentityData) GetSurnames(isoCode string) []SurnameRecord {
 	return id.Surnames[isoCode]
 }
 
-// GetCountryName returns the country name for an ISO code
 func (id *IdentityData) GetCountryName(isoCode string) string {
 	return id.CountryCodes[isoCode]
 }
 
-// GetISOCode returns the ISO code for a country name
 func (id *IdentityData) GetISOCode(name string) string {
 	return id.NameToCode[strings.ToLower(name)]
 }
 
-// GetISOCodeFromSlug returns the ISO code for a slug
 func (id *IdentityData) GetISOCodeFromSlug(slug string) string {
 	return id.SlugToCode[slug]
 }
 
-// GetAvailableCountries returns all countries with name data
 func (id *IdentityData) GetAvailableCountries() []string {
 	countries := make([]string, 0)
 	seen := make(map[string]bool)
@@ -219,7 +197,6 @@ func (id *IdentityData) GetAvailableCountries() []string {
 	return countries
 }
 
-// toSlug converts a country name to a URL-friendly slug
 func toSlug(name string) string {
 	s := strings.ToLower(name)
 	s = strings.ReplaceAll(s, " ", "-")

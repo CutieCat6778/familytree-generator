@@ -43,7 +43,7 @@ export async function checkHealth(): Promise<{ status: string }> {
   return handleResponse(response);
 }
 
-// Helper to check if API is available
+
 export async function isApiAvailable(): Promise<boolean> {
   try {
     await checkHealth();

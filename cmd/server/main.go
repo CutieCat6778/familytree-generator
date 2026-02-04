@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	// Define flags
+	
 	port := flag.Int("port", 8080, "Port to listen on")
 	dataDir := flag.String("data", "./data", "Path to data directory")
 	webDir := flag.String("web", "./web/dist", "Path to web static files directory")
@@ -39,7 +39,7 @@ func main() {
 
 	flag.Parse()
 
-	// Load data repository
+	
 	log.Printf("Loading data from %s...", *dataDir)
 	repo, err := data.NewRepository(*dataDir)
 	if err != nil {
@@ -47,13 +47,13 @@ func main() {
 	}
 	log.Printf("Data loaded successfully")
 
-	// Check if web directory exists
+	
 	if _, err := os.Stat(*webDir); os.IsNotExist(err) {
 		log.Printf("Warning: Web directory %s not found. Run 'cd web && npm run build' to build the frontend.", *webDir)
-		*webDir = "" // Disable static file serving
+		*webDir = "" 
 	}
 
-	// Create and start server
+	
 	addr := fmt.Sprintf(":%d", *port)
 	srv := server.NewServer(repo, addr, *webDir)
 

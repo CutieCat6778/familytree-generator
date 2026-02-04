@@ -11,42 +11,37 @@ import (
 	"strings"
 )
 
-// HistoricalRecord represents a single data point with year
 type HistoricalRecord struct {
-	Entity string  // Country name
-	Code   string  // ISO 3-letter code
-	Year   int     // Year of data
-	Value  float64 // The statistic value
+	Entity string
+	Code   string
+	Year   int
+	Value  float64
 }
 
-// HistoricalDataset holds time-series data for a statistic
 type HistoricalDataset struct {
-	Name    string                       // Dataset name
-	Records []HistoricalRecord           // All records
-	ByCode  map[string][]HistoricalRecord // Indexed by country code
-	ByYear  map[int][]HistoricalRecord    // Indexed by year
+	Name    string
+	Records []HistoricalRecord
+	ByCode  map[string][]HistoricalRecord
+	ByYear  map[int][]HistoricalRecord
 }
 
-// HistoricalData holds all historical datasets
 type HistoricalData struct {
-	FertilityRate       *HistoricalDataset // Children per woman (TFR)
-	MarriageAgeWomen    *HistoricalDataset // Mean age at first marriage (women)
-	DivorceRate         *HistoricalDataset // Divorces per 1000 people
-	YouthMortality      *HistoricalDataset // Under-15 mortality rate
-	BirthsOutsideMarriage *HistoricalDataset // Share of births outside marriage
-	MarriageRate        *HistoricalDataset // Marriages per 1000 people
-	SingleParentShare   *HistoricalDataset // Share of single-parent households
-	UrbanPopulationShare *HistoricalDataset // Share of population living in urban areas
+	FertilityRate         *HistoricalDataset
+	MarriageAgeWomen      *HistoricalDataset
+	DivorceRate           *HistoricalDataset
+	YouthMortality        *HistoricalDataset
+	BirthsOutsideMarriage *HistoricalDataset
+	MarriageRate          *HistoricalDataset
+	SingleParentShare     *HistoricalDataset
+	UrbanPopulationShare  *HistoricalDataset
 }
 
-// LoadHistoricalCSV loads a CSV file with Entity,Code,Year,Value format
 func LoadHistoricalCSV(filepath string) (*HistoricalDataset, error) {
 	data, err := os.ReadFile(filepath)
 	if err != nil {
 		return nil, fmt.Errorf("reading file: %w", err)
 	}
 
-	// Remove BOM
 	data = bytes.TrimPrefix(data, []byte{0xEF, 0xBB, 0xBF})
 
 	reader := csv.NewReader(bytes.NewReader(data))
@@ -68,7 +63,6 @@ func LoadHistoricalCSV(filepath string) (*HistoricalDataset, error) {
 		ByYear: make(map[int][]HistoricalRecord),
 	}
 
-	// Header: Entity,Code,Year,Value (value column name varies)
 	for _, row := range records[1:] {
 		if len(row) < 4 {
 			continue
@@ -96,7 +90,6 @@ func LoadHistoricalCSV(filepath string) (*HistoricalDataset, error) {
 		dataset.ByYear[year] = append(dataset.ByYear[year], record)
 	}
 
-	// Sort records by year for each country
 	for code := range dataset.ByCode {
 		sort.Slice(dataset.ByCode[code], func(i, j int) bool {
 			return dataset.ByCode[code][i].Year < dataset.ByCode[code][j].Year
@@ -177,21 +170,18 @@ func LoadUrbanShareCSV(filepath string) (*HistoricalDataset, error) {
 	return dataset, nil
 }
 
-// GetValue returns the value for a country and year, interpolating if necessary
 func (d *HistoricalDataset) GetValue(code string, year int) (float64, bool) {
 	records, ok := d.ByCode[code]
 	if !ok || len(records) == 0 {
 		return 0, false
 	}
 
-	// Exact match
 	for _, r := range records {
 		if r.Year == year {
 			return r.Value, true
 		}
 	}
 
-	// Find surrounding years for interpolation
 	var before, after *HistoricalRecord
 	for i := range records {
 		if records[i].Year < year {
@@ -202,23 +192,21 @@ func (d *HistoricalDataset) GetValue(code string, year int) (float64, bool) {
 		}
 	}
 
-	// Interpolate or extrapolate
 	if before != nil && after != nil {
-		// Linear interpolation
+
 		ratio := float64(year-before.Year) / float64(after.Year-before.Year)
 		return before.Value + ratio*(after.Value-before.Value), true
 	} else if before != nil {
-		// Use most recent value
+
 		return before.Value, true
 	} else if after != nil {
-		// Use earliest value
+
 		return after.Value, true
 	}
 
 	return 0, false
 }
 
-// GetLatestValue returns the most recent value for a country
 func (d *HistoricalDataset) GetLatestValue(code string) (float64, int, bool) {
 	records, ok := d.ByCode[code]
 	if !ok || len(records) == 0 {
@@ -229,7 +217,6 @@ func (d *HistoricalDataset) GetLatestValue(code string) (float64, int, bool) {
 	return latest.Value, latest.Year, true
 }
 
-// GetValueOrDefault returns the value or a default
 func (d *HistoricalDataset) GetValueOrDefault(code string, year int, defaultVal float64) float64 {
 	if val, ok := d.GetValue(code, year); ok {
 		return val
@@ -237,7 +224,6 @@ func (d *HistoricalDataset) GetValueOrDefault(code string, year int, defaultVal 
 	return defaultVal
 }
 
-// GetAvailableYearRange returns the min and max years in the dataset
 func (d *HistoricalDataset) GetAvailableYearRange() (int, int) {
 	if len(d.Records) == 0 {
 		return 0, 0
@@ -255,7 +241,6 @@ func (d *HistoricalDataset) GetAvailableYearRange() (int, int) {
 	return minYear, maxYear
 }
 
-// GetAvailableCountries returns all country codes in the dataset
 func (d *HistoricalDataset) GetAvailableCountries() []string {
 	codes := make([]string, 0, len(d.ByCode))
 	for code := range d.ByCode {
@@ -265,48 +250,40 @@ func (d *HistoricalDataset) GetAvailableCountries() []string {
 	return codes
 }
 
-// LoadHistoricalData loads all historical datasets
 func LoadHistoricalData(dataDir string) (*HistoricalData, error) {
 	h := &HistoricalData{}
 	var err error
 
-	// Fertility rate (children per woman)
 	h.FertilityRate, err = LoadHistoricalCSV(filepath.Join(dataDir, "children-born-per-woman.csv"))
 	if err != nil {
 		return nil, fmt.Errorf("loading fertility rate: %w", err)
 	}
 
-	// Marriage age for women
 	h.MarriageAgeWomen, err = LoadHistoricalCSV(filepath.Join(dataDir, "age-at-marriage-women.csv"))
 	if err != nil {
 		return nil, fmt.Errorf("loading marriage age: %w", err)
 	}
 
-	// Divorce rate
 	h.DivorceRate, err = LoadHistoricalCSV(filepath.Join(dataDir, "divorces-per-1000-people.csv"))
 	if err != nil {
 		return nil, fmt.Errorf("loading divorce rate: %w", err)
 	}
 
-	// Youth mortality
 	h.YouthMortality, err = LoadHistoricalCSV(filepath.Join(dataDir, "youth-mortality-rate.csv"))
 	if err != nil {
 		return nil, fmt.Errorf("loading youth mortality: %w", err)
 	}
 
-	// Births outside marriage
 	h.BirthsOutsideMarriage, err = LoadHistoricalCSV(filepath.Join(dataDir, "share-of-births-outside-marriage.csv"))
 	if err != nil {
 		return nil, fmt.Errorf("loading births outside marriage: %w", err)
 	}
 
-	// Marriage rate
 	h.MarriageRate, err = LoadHistoricalCSV(filepath.Join(dataDir, "marriage-rate-per-1000-inhabitants.csv"))
 	if err != nil {
 		return nil, fmt.Errorf("loading marriage rate: %w", err)
 	}
 
-	// Single parent share
 	h.SingleParentShare, err = LoadHistoricalCSV(filepath.Join(dataDir, "share-of-single-parent-households.csv"))
 	if err != nil {
 		return nil, fmt.Errorf("loading single parent share: %w", err)
@@ -320,7 +297,6 @@ func LoadHistoricalData(dataDir string) (*HistoricalData, error) {
 	return h, nil
 }
 
-// SlugToISO3 converts a country slug to ISO 3-letter code
 var slugToISO3 = map[string]string{
 	"afghanistan": "AFG", "albania": "ALB", "algeria": "DZA", "argentina": "ARG",
 	"armenia": "ARM", "australia": "AUS", "austria": "AUT", "azerbaijan": "AZE",
@@ -353,7 +329,6 @@ var slugToISO3 = map[string]string{
 	"zimbabwe": "ZWE", "faroe-islands": "FRO",
 }
 
-// GetISO3FromSlug converts a slug to ISO 3-letter code
 func GetISO3FromSlug(slug string) string {
 	if code, ok := slugToISO3[slug]; ok {
 		return code

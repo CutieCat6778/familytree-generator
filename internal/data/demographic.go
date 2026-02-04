@@ -6,12 +6,12 @@ import (
 )
 
 type DemographicData struct {
-	BirthRates      map[string]float64 // slug -> births per 1000 population
-	DeathRates      map[string]float64 // slug -> deaths per 1000 population
-	LifeExpectancy  map[string]float64 // slug -> years
-	MigrationRates  map[string]float64 // slug -> migrants per 1000 population
-	InfantMortality map[string]float64 // slug -> deaths per 1000 live births
-	Population      map[string]float64 // slug -> population count
+	BirthRates      map[string]float64
+	DeathRates      map[string]float64
+	LifeExpectancy  map[string]float64
+	MigrationRates  map[string]float64
+	InfantMortality map[string]float64
+	Population      map[string]float64
 }
 
 func LoadDemographicData(dataDir string) (*DemographicData, error) {

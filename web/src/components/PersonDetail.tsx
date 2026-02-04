@@ -204,7 +204,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           </div>
         </div>
 
-        {/* Basic Info */}
+        {             }
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Basic Information</div>
           <div style={styles.row}>
@@ -241,7 +241,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           </div>
         </div>
 
-        {/* Location & Economy */}
+        {                     }
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Location & Economy</div>
           <div style={styles.row}>
@@ -281,7 +281,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           </div>
         </div>
 
-        {/* Family Info */}
+        {              }
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Family</div>
           <div style={styles.row}>
@@ -323,7 +323,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           )}
         </div>
 
-        {/* Education & Employment */}
+        {                         }
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Education & Employment</div>
           <div style={styles.row}>
@@ -337,7 +337,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           </div>
         </div>
 
-        {/* Health */}
+        {         }
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Health Factors</div>
           <div style={styles.row}>

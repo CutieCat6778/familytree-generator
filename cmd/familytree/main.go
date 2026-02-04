@@ -19,7 +19,7 @@ import (
 func main() {
 	cfg := config.DefaultAppConfig()
 
-	// Define flags
+	
 	flag.StringVar(&cfg.Country, "country", cfg.Country, "Country slug for demographics (e.g., 'united-states', 'japan')")
 	flag.IntVar(&cfg.Generations, "generations", cfg.Generations, "Number of generations to generate (1-10)")
 	flag.Int64Var(&cfg.Seed, "seed", cfg.Seed, "Random seed for reproducibility (0 = random)")
@@ -32,7 +32,7 @@ func main() {
 	flag.BoolVar(&cfg.IncludeExtended, "extended", cfg.IncludeExtended, "Include extended family (siblings)")
 	flag.BoolVar(&cfg.Verbose, "verbose", cfg.Verbose, "Enable verbose output")
 
-	// Custom usage
+	
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Family Tree Generator - Generate realistic family trees based on demographic data\n\n")
 		fmt.Fprintf(os.Stderr, "Usage: %s [options]\n\n", os.Args[0])
@@ -46,13 +46,13 @@ func main() {
 
 	flag.Parse()
 
-	// Validate configuration
+	
 	if err := cfg.Validate(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Load data repository
+	
 	if cfg.Verbose {
 		fmt.Printf("Loading data from %s...\n", cfg.DataDir)
 	}
@@ -63,25 +63,25 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Handle list-countries flag
+	
 	if cfg.ListCountries {
 		listCountries(repo)
 		return
 	}
 
-	// Generate seed if not provided
+	
 	if cfg.Seed == 0 {
 		cfg.Seed = time.Now().UnixNano()
 	}
 
-	// Validate country
+	
 	if err := repo.ValidateCountry(cfg.Country); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Use -list-countries to see available countries\n")
 		os.Exit(1)
 	}
 
-	// Create generator
+	
 	genConfig := cfg.ToGeneratorConfig()
 	engine := generator.NewEngine(genConfig, repo)
 
@@ -93,7 +93,7 @@ func main() {
 		fmt.Printf("  Extended family: %v\n", cfg.IncludeExtended)
 	}
 
-	// Generate tree
+	
 	tree, err := engine.Generate()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error generating tree: %v\n", err)
@@ -104,7 +104,7 @@ func main() {
 		fmt.Printf("Generated %d persons in %d families\n", tree.PersonCount(), tree.FamilyCount())
 	}
 
-	// Write output
+	
 	if err := writeOutput(tree, cfg); err != nil {
 		fmt.Fprintf(os.Stderr, "Error writing output: %v\n", err)
 		os.Exit(1)
@@ -121,7 +121,7 @@ func listCountries(repo *data.Repository) {
 
 	fmt.Printf("Available countries with complete data (%d):\n\n", len(countries))
 
-	// Group by region if possible, otherwise just list
+	
 	sort.Strings(countries)
 
 	for i, slug := range countries {
@@ -152,7 +152,7 @@ func writeOutput(tree *model.FamilyTree, cfg *config.AppConfig) error {
 		}
 		fmt.Printf("Output written to: %s\n", cfg.OutputPath)
 
-		// Also write visualization-friendly JSON
+		
 		vizPath := strings.TrimSuffix(cfg.OutputPath, filepath.Ext(cfg.OutputPath)) + "_viz.json"
 		if err := output.WriteVisualizationJSON(tree, vizPath); err != nil {
 			return err
@@ -160,21 +160,21 @@ func writeOutput(tree *model.FamilyTree, cfg *config.AppConfig) error {
 		fmt.Printf("Visualization data written to: %s\n", vizPath)
 
 	case "both":
-		// CSV output
+		
 		csvPath := strings.TrimSuffix(cfg.OutputPath, filepath.Ext(cfg.OutputPath)) + ".csv"
 		if err := output.WriteCSV(tree, csvPath); err != nil {
 			return err
 		}
 		fmt.Printf("CSV output written to: %s\n", csvPath)
 
-		// JSON output
+		
 		jsonPath := strings.TrimSuffix(cfg.OutputPath, filepath.Ext(cfg.OutputPath)) + ".json"
 		if err := output.WriteJSON(tree, jsonPath); err != nil {
 			return err
 		}
 		fmt.Printf("JSON output written to: %s\n", jsonPath)
 
-		// Visualization JSON
+		
 		vizPath := strings.TrimSuffix(cfg.OutputPath, filepath.Ext(cfg.OutputPath)) + "_viz.json"
 		if err := output.WriteVisualizationJSON(tree, vizPath); err != nil {
 			return err

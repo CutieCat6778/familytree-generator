@@ -13,7 +13,7 @@ interface UseTreeDataReturn {
   setError: Dispatch<SetStateAction<string | null>>;
 }
 
-// Sample data for demonstration
+
 const sampleData: VisualizationData = {
   id: "sample_tree",
   root_id: "P001",
@@ -222,7 +222,7 @@ export function useTreeData(): UseTreeDataReturn {
       const text = await file.text();
       const json = JSON.parse(text);
 
-      // Validate the data structure
+      
       if (!json.nodes || !json.edges || !json.root_id) {
         throw new Error('Invalid file format. Expected visualization JSON with nodes, edges, and root_id.');
       }

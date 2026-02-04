@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-// Repository provides centralized access to all data
 type Repository struct {
 	Demographic *DemographicData
 	Economic    *EconomicData
@@ -16,55 +15,48 @@ type Repository struct {
 	dataDir     string
 }
 
-// CountryStats holds all statistics for a single country
 type CountryStats struct {
-	Slug           string
-	ISOCode        string
-	Name           string
-	BirthRate      float64
-	DeathRate      float64
-	LifeExpectancy float64
-	MigrationRate  float64
-	InfantMortality float64
-	Population     float64
-	GDPPerCapita   float64
-	UnemploymentRate float64
+	Slug                  string
+	ISOCode               string
+	Name                  string
+	BirthRate             float64
+	DeathRate             float64
+	LifeExpectancy        float64
+	MigrationRate         float64
+	InfantMortality       float64
+	Population            float64
+	GDPPerCapita          float64
+	UnemploymentRate      float64
 	YouthUnemploymentRate float64
-	EducationExpenditure float64
-	AlcoholConsumption float64
-	TobaccoUse     float64
+	EducationExpenditure  float64
+	AlcoholConsumption    float64
+	TobaccoUse            float64
 }
 
-// NewRepository creates a new data repository loading all data from the directory
 func NewRepository(dataDir string) (*Repository, error) {
 	r := &Repository{dataDir: dataDir}
 	var err error
 
-	// Load demographic data
 	r.Demographic, err = LoadDemographicData(dataDir)
 	if err != nil {
 		return nil, fmt.Errorf("loading demographic data: %w", err)
 	}
 
-	// Load economic data
 	r.Economic, err = LoadEconomicData(dataDir)
 	if err != nil {
 		return nil, fmt.Errorf("loading economic data: %w", err)
 	}
 
-	// Load health data
 	r.Health, err = LoadHealthData(dataDir)
 	if err != nil {
 		return nil, fmt.Errorf("loading health data: %w", err)
 	}
 
-	// Load identity data
 	r.Identity, err = LoadIdentityData(dataDir)
 	if err != nil {
 		return nil, fmt.Errorf("loading identity data: %w", err)
 	}
 
-	// Load historical data
 	r.Historical, err = LoadHistoricalData(dataDir)
 	if err != nil {
 		return nil, fmt.Errorf("loading historical data: %w", err)
@@ -73,7 +65,6 @@ func NewRepository(dataDir string) (*Repository, error) {
 	return r, nil
 }
 
-// GetCountryStats returns all statistics for a country by slug
 func (r *Repository) GetCountryStats(slug string) *CountryStats {
 	isoCode := r.Identity.GetISOCodeFromSlug(slug)
 
@@ -96,7 +87,6 @@ func (r *Repository) GetCountryStats(slug string) *CountryStats {
 	}
 }
 
-// GetAvailableCountrySlugs returns all country slugs that have demographic data
 func (r *Repository) GetAvailableCountrySlugs() []string {
 	slugs := make([]string, 0, len(r.Demographic.BirthRates))
 	for slug := range r.Demographic.BirthRates {
@@ -106,7 +96,6 @@ func (r *Repository) GetAvailableCountrySlugs() []string {
 	return slugs
 }
 
-// GetCountriesWithNames returns countries that have both demographic and name data
 func (r *Repository) GetCountriesWithNames() []string {
 	var countries []string
 
@@ -125,16 +114,13 @@ func (r *Repository) GetCountriesWithNames() []string {
 	return countries
 }
 
-// ValidateCountry checks if a country slug is valid and has sufficient data
 func (r *Repository) ValidateCountry(slug string) error {
 	slug = strings.ToLower(slug)
 
-	// Check demographic data
 	if _, ok := r.Demographic.BirthRates[slug]; !ok {
 		return fmt.Errorf("country '%s' not found in demographic data", slug)
 	}
 
-	// Check for name data
 	isoCode := r.Identity.GetISOCodeFromSlug(slug)
 	if isoCode == "" {
 		return fmt.Errorf("country '%s' has no ISO code mapping", slug)
@@ -153,12 +139,10 @@ func (r *Repository) ValidateCountry(slug string) error {
 	return nil
 }
 
-// GetISOCodeForSlug returns the ISO code for a country slug
 func (r *Repository) GetISOCodeForSlug(slug string) string {
 	return r.Identity.GetISOCodeFromSlug(slug)
 }
 
-// GetForenamesByGender returns forenames for a country and gender
 func (r *Repository) GetForenamesByGender(slug, gender string) []NameRecord {
 	isoCode := r.Identity.GetISOCodeFromSlug(slug)
 	if isoCode == "" {
@@ -167,7 +151,6 @@ func (r *Repository) GetForenamesByGender(slug, gender string) []NameRecord {
 	return r.Identity.GetForenamesByGender(isoCode, gender)
 }
 
-// GetSurnames returns surnames for a country
 func (r *Repository) GetSurnames(slug string) []SurnameRecord {
 	isoCode := r.Identity.GetISOCodeFromSlug(slug)
 	if isoCode == "" {
@@ -184,47 +167,42 @@ func (r *Repository) GetUnderweightU5(slug string) float64 {
 	return r.Health.GetUnderweightU5(slug)
 }
 
-// GetFertilityRate returns the total fertility rate for a country and year
 func (r *Repository) GetFertilityRate(slug string, year int) float64 {
 	iso3 := GetISO3FromSlug(slug)
 	if iso3 == "" {
-		return 2.1 // Replacement rate default
+		return 2.1
 	}
 	return r.Historical.FertilityRate.GetValueOrDefault(iso3, year, 2.1)
 }
 
-// GetMarriageAgeWomen returns the mean marriage age for women
 func (r *Repository) GetMarriageAgeWomen(slug string, year int) float64 {
 	iso3 := GetISO3FromSlug(slug)
 	if iso3 == "" {
-		return 25.0 // Default
+		return 25.0
 	}
 	return r.Historical.MarriageAgeWomen.GetValueOrDefault(iso3, year, 25.0)
 }
 
-// GetDivorceRate returns divorces per 1000 people
 func (r *Repository) GetDivorceRate(slug string, year int) float64 {
 	iso3 := GetISO3FromSlug(slug)
 	if iso3 == "" {
-		return 2.0 // Default
+		return 2.0
 	}
 	return r.Historical.DivorceRate.GetValueOrDefault(iso3, year, 2.0)
 }
 
-// GetYouthMortality returns under-15 mortality rate
 func (r *Repository) GetYouthMortality(slug string, year int) float64 {
 	iso3 := GetISO3FromSlug(slug)
 	if iso3 == "" {
-		return 5.0 // Default
+		return 5.0
 	}
 	return r.Historical.YouthMortality.GetValueOrDefault(iso3, year, 5.0)
 }
 
-// GetBirthsOutsideMarriage returns share of births outside marriage (%)
 func (r *Repository) GetBirthsOutsideMarriage(slug string, year int) float64 {
 	iso3 := GetISO3FromSlug(slug)
 	if iso3 == "" {
-		return 20.0 // Default
+		return 20.0
 	}
 	return r.Historical.BirthsOutsideMarriage.GetValueOrDefault(iso3, year, 20.0)
 }
@@ -247,20 +225,18 @@ func (r *Repository) GetUrbanShare(slug string, year int) float64 {
 	return value
 }
 
-// GetMarriageRate returns marriages per 1000 people
 func (r *Repository) GetMarriageRate(slug string, year int) float64 {
 	iso3 := GetISO3FromSlug(slug)
 	if iso3 == "" {
-		return 5.0 // Default
+		return 5.0
 	}
 	return r.Historical.MarriageRate.GetValueOrDefault(iso3, year, 5.0)
 }
 
-// GetSingleParentShare returns share of single-parent households (%)
 func (r *Repository) GetSingleParentShare(slug string, year int) float64 {
 	iso3 := GetISO3FromSlug(slug)
 	if iso3 == "" {
-		return 10.0 // Default
+		return 10.0
 	}
 	return r.Historical.SingleParentShare.GetValueOrDefault(iso3, year, 10.0)
 }
