@@ -204,7 +204,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           </div>
         </div>
 
-        {             }
+        { }
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Basic Information</div>
           <div style={styles.row}>
@@ -230,8 +230,8 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
             <span style={styles.label}>Generation:</span>
             <span style={styles.value}>
               {person.generation === 0 ? 'Root' :
-               person.generation > 0 ? `+${person.generation} (descendant)` :
-               `${person.generation} (ancestor)`}
+                person.generation > 0 ? `+${person.generation} (descendant)` :
+                  `${person.generation} (ancestor)`}
             </span>
           </div>
 
@@ -241,7 +241,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           </div>
         </div>
 
-        {                     }
+        { }
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Location & Economy</div>
           <div style={styles.row}>
@@ -262,7 +262,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           </div>
           <div style={styles.row}>
             <span style={styles.label}>GDP per Capita:</span>
-            <span style={styles.value}>{formatCurrency(person.gdp_per_capita)}</span>
+            <span style={styles.value}>{formatCurrency(wealthRatio && person.gdp_per_capita ? person.gdp_per_capita * wealthRatio : person.gdp_per_capita)}</span>
           </div>
           <div style={styles.row}>
             <span style={styles.label}>Family Wealth:</span>
@@ -281,7 +281,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           </div>
         </div>
 
-        {              }
+        { }
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Family</div>
           <div style={styles.row}>
@@ -323,7 +323,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           )}
         </div>
 
-        {                         }
+        { }
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Education & Employment</div>
           <div style={styles.row}>
@@ -337,7 +337,7 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({ person, referenceYea
           </div>
         </div>
 
-        {         }
+        { }
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Health Factors</div>
           <div style={styles.row}>

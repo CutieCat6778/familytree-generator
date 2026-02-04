@@ -130,3 +130,46 @@ func RecordsToFullMap(records []StatRecord) map[string]StatRecord {
 	}
 	return result
 }
+
+func LoadLifeExpectancyBySexCSV(filepath string) (map[string]LifeExpectancyBySex, error) {
+	data, err := os.ReadFile(filepath)
+	if err != nil {
+		return nil, err
+	}
+
+	data = bytes.TrimPrefix(data, []byte{0xEF, 0xBB, 0xBF})
+
+	reader := csv.NewReader(bytes.NewReader(data))
+	reader.TrimLeadingSpace = true
+	reader.FieldsPerRecord = -1
+
+	records, err := reader.ReadAll()
+	if err != nil {
+		return nil, fmt.Errorf("parsing CSV %s: %w", filepath, err)
+	}
+
+	if len(records) < 2 {
+		return nil, fmt.Errorf("CSV file %s has no data rows", filepath)
+	}
+
+	result := make(map[string]LifeExpectancyBySex)
+	for _, row := range records[1:] {
+		if len(row) < 8 {
+			continue
+		}
+		slug := strings.Trim(row[1], "\"")
+		if slug == "" {
+			continue
+		}
+		total, _ := ParseValue(strings.Trim(row[2], "\""))
+		female, _ := ParseValue(strings.Trim(row[3], "\""))
+		male, _ := ParseValue(strings.Trim(row[4], "\""))
+		result[slug] = LifeExpectancyBySex{
+			Total:  total,
+			Female: female,
+			Male:   male,
+		}
+	}
+
+	return result, nil
+}

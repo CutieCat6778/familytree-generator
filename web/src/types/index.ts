@@ -64,6 +64,10 @@ export interface VisualizationStats {
   births_outside_marriage: number;
   tertiary_education: number;
   employed_count: number;
+  average_gdp_per_capita: number;
+  average_wealth_index: number;
+  average_family_wealth: number;
+  rich_count: number;
 }
 
 
@@ -88,6 +92,7 @@ export interface GenerateRequest {
   start_year?: number;
   gender?: 'M' | 'F';
   include_extended?: boolean;
+  life_expectancy_mode?: 'total' | 'female' | 'male' | 'by_gender';
 }
 
 export interface GenerateResponse {

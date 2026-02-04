@@ -5,45 +5,40 @@ import (
 	"github.com/familytree-generator/internal/model"
 )
 
-
 type AppConfig struct {
-	
-	Country         string
-	Generations     int
-	Seed            int64
-	StartYear       int
-	RootGender      string
-	IncludeExtended bool
+	Country            string
+	Generations        int
+	Seed               int64
+	StartYear          int
+	RootGender         string
+	IncludeExtended    bool
+	LifeExpectancyMode string
 
-	
 	OutputPath   string
-	OutputFormat string 
+	OutputFormat string
 
-	
 	DataDir string
 
-	
 	ListCountries bool
 	Verbose       bool
 }
 
-
 func DefaultAppConfig() *AppConfig {
 	return &AppConfig{
-		Country:         "germany",
-		Generations:     3,
-		Seed:            0, 
-		StartYear:       1970,
-		RootGender:      "random",
-		IncludeExtended: false,
-		OutputPath:      "family_tree.csv",
-		OutputFormat:    "csv",
-		DataDir:         "./data",
-		ListCountries:   false,
-		Verbose:         false,
+		Country:            "germany",
+		Generations:        3,
+		Seed:               0,
+		StartYear:          1970,
+		RootGender:         "random",
+		IncludeExtended:    false,
+		LifeExpectancyMode: string(generator.LifeExpectancyTotal),
+		OutputPath:         "family_tree.csv",
+		OutputFormat:       "csv",
+		DataDir:            "./data",
+		ListCountries:      false,
+		Verbose:            false,
 	}
 }
-
 
 func (c *AppConfig) ToGeneratorConfig() generator.Config {
 	var gender model.Gender
@@ -53,19 +48,19 @@ func (c *AppConfig) ToGeneratorConfig() generator.Config {
 	case "F", "f", "female":
 		gender = model.Female
 	default:
-		gender = "" 
+		gender = ""
 	}
 
 	return generator.Config{
-		Country:         c.Country,
-		Generations:     c.Generations,
-		Seed:            c.Seed,
-		StartYear:       c.StartYear,
-		RootGender:      gender,
-		IncludeExtended: c.IncludeExtended,
+		Country:            c.Country,
+		Generations:        c.Generations,
+		Seed:               c.Seed,
+		StartYear:          c.StartYear,
+		RootGender:         gender,
+		IncludeExtended:    c.IncludeExtended,
+		LifeExpectancyMode: generator.ParseLifeExpectancyMode(c.LifeExpectancyMode),
 	}
 }
-
 
 func (c *AppConfig) Validate() error {
 	if c.Generations < 1 {
@@ -81,6 +76,8 @@ func (c *AppConfig) Validate() error {
 	if c.StartYear > 2024 {
 		c.StartYear = 2024
 	}
+
+	c.LifeExpectancyMode = string(generator.ParseLifeExpectancyMode(c.LifeExpectancyMode))
 
 	return nil
 }

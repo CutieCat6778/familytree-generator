@@ -206,6 +206,10 @@ const sampleData: VisualizationData = {
     births_outside_marriage: 0,
     tertiary_education: 1,
     employed_count: 2,
+    average_gdp_per_capita: 75000,
+    average_wealth_index: 1.03,
+    average_family_wealth: 77500,
+    rich_count: 0,
   }
 };
 

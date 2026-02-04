@@ -22,6 +22,8 @@ type CountryStats struct {
 	BirthRate             float64
 	DeathRate             float64
 	LifeExpectancy        float64
+	LifeExpectancyFemale  float64
+	LifeExpectancyMale    float64
 	MigrationRate         float64
 	InfantMortality       float64
 	Population            float64
@@ -75,6 +77,8 @@ func (r *Repository) GetCountryStats(slug string) *CountryStats {
 		BirthRate:             r.Demographic.GetBirthRate(slug),
 		DeathRate:             r.Demographic.GetDeathRate(slug),
 		LifeExpectancy:        r.Demographic.GetLifeExpectancy(slug),
+		LifeExpectancyFemale:  r.Demographic.GetLifeExpectancyFemale(slug),
+		LifeExpectancyMale:    r.Demographic.GetLifeExpectancyMale(slug),
 		MigrationRate:         r.Demographic.GetMigrationRate(slug),
 		InfantMortality:       r.Demographic.GetInfantMortality(slug),
 		Population:            r.Demographic.GetPopulation(slug),

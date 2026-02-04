@@ -8,33 +8,30 @@ import (
 	"github.com/familytree-generator/pkg/rand"
 )
 
-
 type ProbabilityEngine struct {
-	rng     *rand.SeededRandom
-	stats   *data.CountryStats
-	repo    *data.Repository
-	country string
+	rng                *rand.SeededRandom
+	stats              *data.CountryStats
+	repo               *data.Repository
+	country            string
+	lifeExpectancyMode LifeExpectancyMode
 }
 
-
-func NewProbabilityEngine(rng *rand.SeededRandom, stats *data.CountryStats, repo *data.Repository, country string) *ProbabilityEngine {
+func NewProbabilityEngine(rng *rand.SeededRandom, stats *data.CountryStats, repo *data.Repository, country string, mode LifeExpectancyMode) *ProbabilityEngine {
 	return &ProbabilityEngine{
-		rng:     rng,
-		stats:   stats,
-		repo:    repo,
-		country: country,
+		rng:                rng,
+		stats:              stats,
+		repo:               repo,
+		country:            country,
+		lifeExpectancyMode: mode,
 	}
 }
 
-
 func (p *ProbabilityEngine) CalculateChildrenCount(year int) int {
-	
+
 	tfr := p.repo.GetFertilityRate(p.country, year)
 
-	
 	children := p.rng.NormalDistribution(tfr, tfr*0.25)
 
-	
 	result := int(math.Round(children))
 	if result < 0 {
 		result = 0
@@ -45,7 +42,6 @@ func (p *ProbabilityEngine) CalculateChildrenCount(year int) int {
 
 	return result
 }
-
 
 func (p *ProbabilityEngine) CalculateChildrenCountLegacy() int {
 	birthRate := p.stats.BirthRate
@@ -70,18 +66,9 @@ func (p *ProbabilityEngine) CalculateChildrenCountLegacy() int {
 	return result
 }
 
+func (p *ProbabilityEngine) CalculateDeathAge(health model.HealthProfile, birthYear int, gender model.Gender) int {
+	baseAge := p.adjustedLifeExpectancy(birthYear, p.baseLifeExpectancy(gender))
 
-func (p *ProbabilityEngine) CalculateDeathAge(health model.HealthProfile, birthYear int) int {
-	baseAge := p.stats.LifeExpectancy
-
-	
-	if birthYear < 1950 {
-		baseAge = baseAge * 0.75 
-	} else if birthYear < 1980 {
-		baseAge = baseAge * 0.9 
-	}
-
-	
 	if health.TobaccoUse {
 		baseAge -= p.rng.Float64Range(5, 10)
 	}
@@ -90,19 +77,68 @@ func (p *ProbabilityEngine) CalculateDeathAge(health model.HealthProfile, birthY
 		baseAge -= p.rng.Float64Range(2, 5)
 	}
 
-	
 	deathAge := p.rng.NormalDistribution(baseAge, 8)
 
 	if deathAge < 1 {
 		deathAge = 1
 	}
-	if deathAge > 120 {
-		deathAge = 120
+	maxAge := float64(p.MaxAllowedAge(birthYear, gender))
+	if deathAge > maxAge {
+		deathAge = maxAge
 	}
 
 	return int(math.Round(deathAge))
 }
 
+func (p *ProbabilityEngine) adjustedLifeExpectancy(birthYear int, baseAge float64) float64 {
+
+	if birthYear < 1950 {
+		baseAge = baseAge * 0.75
+	} else if birthYear < 1980 {
+		baseAge = baseAge * 0.9
+	}
+
+	if baseAge < 40 {
+		baseAge = 40
+	}
+
+	return baseAge
+}
+
+func (p *ProbabilityEngine) MaxAllowedAge(birthYear int, gender model.Gender) int {
+	maxAge := p.adjustedLifeExpectancy(birthYear, p.baseLifeExpectancy(gender)) + 40
+	if maxAge < 50 {
+		maxAge = 50
+	}
+	if maxAge > maxHumanAgeYears {
+		maxAge = maxHumanAgeYears
+	}
+	return int(math.Round(maxAge))
+}
+
+func (p *ProbabilityEngine) baseLifeExpectancy(gender model.Gender) float64 {
+	base := p.stats.LifeExpectancy
+	switch p.lifeExpectancyMode {
+	case LifeExpectancyFemale:
+		if p.stats.LifeExpectancyFemale > 0 {
+			base = p.stats.LifeExpectancyFemale
+		}
+	case LifeExpectancyMale:
+		if p.stats.LifeExpectancyMale > 0 {
+			base = p.stats.LifeExpectancyMale
+		}
+	case LifeExpectancyByGender:
+		if gender == model.Female && p.stats.LifeExpectancyFemale > 0 {
+			base = p.stats.LifeExpectancyFemale
+		} else if gender == model.Male && p.stats.LifeExpectancyMale > 0 {
+			base = p.stats.LifeExpectancyMale
+		}
+	}
+	if base <= 0 {
+		base = p.stats.LifeExpectancy
+	}
+	return base
+}
 
 func (p *ProbabilityEngine) ShouldDieInInfancy() bool {
 	imr := p.stats.InfantMortality
@@ -110,28 +146,25 @@ func (p *ProbabilityEngine) ShouldDieInInfancy() bool {
 	return p.rng.Chance(probability)
 }
 
-
 func (p *ProbabilityEngine) ShouldDieInYouth(birthYear int) bool {
 	youthMortality := p.repo.GetYouthMortality(p.country, birthYear)
-	
+
 	probability := youthMortality / 100.0
 	return p.rng.Chance(probability)
 }
-
 
 func (p *ProbabilityEngine) CalculateMarriageAge(gender model.Gender, birthYear int) int {
 	var baseAge float64
 
 	if gender == model.Female {
-		
-		baseAge = p.repo.GetMarriageAgeWomen(p.country, birthYear+25) 
+
+		baseAge = p.repo.GetMarriageAgeWomen(p.country, birthYear+25)
 	} else {
-		
+
 		womenAge := p.repo.GetMarriageAgeWomen(p.country, birthYear+25)
 		baseAge = womenAge + p.rng.Float64Range(2, 4)
 	}
 
-	
 	age := p.rng.NormalDistribution(baseAge, 3)
 
 	if age < 18 {
@@ -144,19 +177,16 @@ func (p *ProbabilityEngine) CalculateMarriageAge(gender model.Gender, birthYear 
 	return int(math.Round(age))
 }
 
-
 func (p *ProbabilityEngine) ShouldGetDivorced(marriageYear int) bool {
 	divorceRate := p.repo.GetDivorceRate(p.country, marriageYear)
-	
-	
-	probability := divorceRate / 1000.0 * 10 
+
+	probability := divorceRate / 1000.0 * 10
 	return p.rng.Chance(probability)
 }
 
-
 func (p *ProbabilityEngine) ShouldBeBornOutsideMarriage(birthYear int) bool {
 	share := p.repo.GetBirthsOutsideMarriage(p.country, birthYear)
-	
+
 	return p.rng.Chance(share / 100.0)
 }
 
@@ -173,34 +203,28 @@ func (p *ProbabilityEngine) DetermineResidence(birthYear int) model.ResidenceTyp
 	return model.Rural
 }
 
-
 func (p *ProbabilityEngine) ShouldBeSingleParent(year int) bool {
 	share := p.repo.GetSingleParentShare(p.country, year)
 	return p.rng.Chance(share / 100.0)
 }
 
-
 func (p *ProbabilityEngine) ShouldGetMarried(birthYear int) bool {
 	marriageRate := p.repo.GetMarriageRate(p.country, birthYear+28)
-	
-	
-	
+
 	baseProbability := 0.85
 	if marriageRate < 5 {
-		baseProbability = 0.70 
+		baseProbability = 0.70
 	} else if marriageRate > 8 {
-		baseProbability = 0.95 
+		baseProbability = 0.95
 	}
 	return p.rng.Chance(baseProbability)
 }
-
 
 func (p *ProbabilityEngine) ShouldMigrate() bool {
 	migRate := p.stats.MigrationRate
 	probability := math.Abs(migRate) / 1000.0 * 0.5
 	return p.rng.Chance(probability)
 }
-
 
 func (p *ProbabilityEngine) DetermineEmployment(age int) model.EmploymentStatus {
 	if age < 16 {
@@ -235,7 +259,6 @@ func (p *ProbabilityEngine) DetermineEmployment(age int) model.EmploymentStatus 
 
 	return model.Employed
 }
-
 
 func (p *ProbabilityEngine) DetermineEducation() model.EducationLevel {
 	eduExp := p.stats.EducationExpenditure
@@ -281,7 +304,6 @@ func (p *ProbabilityEngine) DetermineEducation() model.EducationLevel {
 	}
 }
 
-
 func (p *ProbabilityEngine) GenerateHealthProfile() model.HealthProfile {
 	alcohol := p.stats.AlcoholConsumption + p.rng.NormalDistribution(0, 2)
 	if alcohol < 0 {
@@ -293,17 +315,14 @@ func (p *ProbabilityEngine) GenerateHealthProfile() model.HealthProfile {
 	}
 }
 
-
 func (p *ProbabilityEngine) CalculateChildBirthYear(motherBirthYear, childIndex int) int {
 	marriageAge := p.CalculateMarriageAge(model.Female, motherBirthYear)
 	motherAgeAtFirstChild := marriageAge + p.rng.IntRange(1, 3)
 
-	
 	spacing := childIndex * p.rng.IntRange(2, 4)
 
 	return motherBirthYear + motherAgeAtFirstChild + spacing
 }
-
 
 func (p *ProbabilityEngine) CalculateParentBirthYear(childBirthYear int, parentGender model.Gender) int {
 	var ageGap int
@@ -316,7 +335,6 @@ func (p *ProbabilityEngine) CalculateParentBirthYear(childBirthYear int, parentG
 	return childBirthYear - ageGap
 }
 
-
 func (p *ProbabilityEngine) CalculateSiblingCount(year int) int {
 	count := p.CalculateChildrenCount(year)
 	if count > 0 {
@@ -325,11 +343,9 @@ func (p *ProbabilityEngine) CalculateSiblingCount(year int) int {
 	return count
 }
 
-
 func (p *ProbabilityEngine) ShouldRemarry() bool {
-	return p.rng.Chance(0.40) 
+	return p.rng.Chance(0.40)
 }
-
 
 func (p *ProbabilityEngine) Gender() model.Gender {
 	if p.rng.Bool() {
@@ -338,13 +354,11 @@ func (p *ProbabilityEngine) Gender() model.Gender {
 	return model.Female
 }
 
-
 func (p *ProbabilityEngine) CalculateDivorceYear(marriageYear int) int {
-	
+
 	yearsMarried := p.rng.IntRange(2, 15)
 	return marriageYear + yearsMarried
 }
-
 
 func (p *ProbabilityEngine) DetermineMaritalStatus(person *model.Person, hasSpouse bool, isDivorced bool) model.MaritalStatus {
 	if !hasSpouse {
@@ -356,6 +370,6 @@ func (p *ProbabilityEngine) DetermineMaritalStatus(person *model.Person, hasSpou
 		}
 		return model.Divorced
 	}
-	
+
 	return model.Married
 }

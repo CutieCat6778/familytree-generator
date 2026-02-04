@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-
 type EventType string
 
 const (
@@ -17,15 +16,13 @@ const (
 	EventRetirement EventType = "retirement"
 )
 
-
 type LifeEvent struct {
 	Type        EventType `json:"type"`
 	Date        time.Time `json:"date"`
 	Location    string    `json:"location,omitempty"`
 	Description string    `json:"description,omitempty"`
-	RelatedID   string    `json:"related_id,omitempty"` 
+	RelatedID   string    `json:"related_id,omitempty"`
 }
-
 
 func NewLifeEvent(eventType EventType, date time.Time, location string) LifeEvent {
 	return LifeEvent{
@@ -35,12 +32,10 @@ func NewLifeEvent(eventType EventType, date time.Time, location string) LifeEven
 	}
 }
 
-
 func (e LifeEvent) WithDescription(desc string) LifeEvent {
 	e.Description = desc
 	return e
 }
-
 
 func (e LifeEvent) WithRelatedID(id string) LifeEvent {
 	e.RelatedID = id

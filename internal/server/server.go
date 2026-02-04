@@ -15,14 +15,12 @@ import (
 	"github.com/familytree-generator/internal/output"
 )
 
-
 type Server struct {
 	repo        *data.Repository
 	addr        string
 	webDir      string
 	rateLimiter *RateLimiter
 }
-
 
 func NewServer(repo *data.Repository, addr string, webDir string) *Server {
 	return &Server{
@@ -33,17 +31,14 @@ func NewServer(repo *data.Repository, addr string, webDir string) *Server {
 	}
 }
 
-
 func (s *Server) Start() error {
 	mux := http.NewServeMux()
 
-	
 	mux.HandleFunc("/api/generate", s.corsMiddleware(s.handleGenerate))
 	mux.HandleFunc("/api/countries", s.corsMiddleware(s.handleCountries))
 	mux.HandleFunc("/api/country/", s.corsMiddleware(s.handleCountryStats))
 	mux.HandleFunc("/api/health", s.corsMiddleware(s.handleHealth))
 
-	
 	if s.webDir != "" {
 		fs := http.FileServer(http.Dir(s.webDir))
 		mux.Handle("/", fs)
@@ -58,7 +53,6 @@ func (s *Server) Start() error {
 
 	return http.ListenAndServe(s.addr, mux)
 }
-
 
 func (s *Server) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -102,16 +96,15 @@ func isAllowedOrigin(origin string) bool {
 	return false
 }
 
-
 type GenerateRequest struct {
-	Country         string `json:"country"`
-	Generations     int    `json:"generations"`
-	Seed            int64  `json:"seed"`
-	StartYear       int    `json:"start_year"`
-	Gender          string `json:"gender"`
-	IncludeExtended bool   `json:"include_extended"`
+	Country            string `json:"country"`
+	Generations        int    `json:"generations"`
+	Seed               int64  `json:"seed"`
+	StartYear          int    `json:"start_year"`
+	Gender             string `json:"gender"`
+	IncludeExtended    bool   `json:"include_extended"`
+	LifeExpectancyMode string `json:"life_expectancy_mode"`
 }
-
 
 type GenerateResponse struct {
 	Success bool                      `json:"success"`
@@ -119,7 +112,6 @@ type GenerateResponse struct {
 	Tree    *output.VisualizationData `json:"tree,omitempty"`
 	Stats   *TreeStats                `json:"stats,omitempty"`
 }
-
 
 type TreeStats struct {
 	TotalPersons   int     `json:"total_persons"`
@@ -131,7 +123,6 @@ type TreeStats struct {
 	DivorceCount   int     `json:"divorce_count"`
 	GenerationTime string  `json:"generation_time"`
 }
-
 
 func (s *Server) handleGenerate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -150,7 +141,6 @@ func (s *Server) handleGenerate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	if req.Country == "" {
 		req.Country = "germany"
 	}
@@ -166,14 +156,15 @@ func (s *Server) handleGenerate(w http.ResponseWriter, r *http.Request) {
 	if req.StartYear == 0 {
 		req.StartYear = 1970
 	}
+	if req.LifeExpectancyMode == "" {
+		req.LifeExpectancyMode = string(generator.LifeExpectancyTotal)
+	}
 
-	
 	if err := s.repo.ValidateCountry(req.Country); err != nil {
 		s.jsonError(w, "Invalid country: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	
 	var gender model.Gender
 	switch strings.ToUpper(req.Gender) {
 	case "M", "MALE":
@@ -183,15 +174,15 @@ func (s *Server) handleGenerate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	config := generator.Config{
-		Country:         req.Country,
-		Generations:     req.Generations,
-		Seed:            req.Seed,
-		StartYear:       req.StartYear,
-		RootGender:      gender,
-		IncludeExtended: req.IncludeExtended,
+		Country:            req.Country,
+		Generations:        req.Generations,
+		Seed:               req.Seed,
+		StartYear:          req.StartYear,
+		RootGender:         gender,
+		IncludeExtended:    req.IncludeExtended,
+		LifeExpectancyMode: generator.ParseLifeExpectancyMode(req.LifeExpectancyMode),
 	}
 
-	
 	startTime := time.Now()
 	engine := generator.NewEngine(config, s.repo)
 	tree, err := engine.Generate()
@@ -201,10 +192,8 @@ func (s *Server) handleGenerate(w http.ResponseWriter, r *http.Request) {
 	}
 	generationTime := time.Since(startTime)
 
-	
 	vizData := output.TreeToVisualizationData(tree)
 
-	
 	divorceCount := 0
 	for _, family := range tree.GetAllFamilies() {
 		if family.IsDivorced() {
@@ -232,7 +221,6 @@ func (s *Server) handleGenerate(w http.ResponseWriter, r *http.Request) {
 	s.jsonResponse(w, response)
 }
 
-
 type CountryInfo struct {
 	Slug           string  `json:"slug"`
 	Name           string  `json:"name"`
@@ -241,7 +229,6 @@ type CountryInfo struct {
 	Population     float64 `json:"population,omitempty"`
 	LifeExpectancy float64 `json:"life_expectancy,omitempty"`
 }
-
 
 func (s *Server) handleCountries(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
@@ -271,21 +258,18 @@ func (s *Server) handleCountries(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
 func (s *Server) handleCountryStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		s.jsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	
 	slug := strings.TrimPrefix(r.URL.Path, "/api/country/")
 	if slug == "" {
 		s.jsonError(w, "Country slug required", http.StatusBadRequest)
 		return
 	}
 
-	
 	if err := s.repo.ValidateCountry(slug); err != nil {
 		s.jsonError(w, "Country not found: "+err.Error(), http.StatusNotFound)
 		return
@@ -293,7 +277,6 @@ func (s *Server) handleCountryStats(w http.ResponseWriter, r *http.Request) {
 
 	stats := s.repo.GetCountryStats(slug)
 
-	
 	currentYear := time.Now().Year()
 	historicalStats := map[string]interface{}{
 		"fertility_rate":          s.repo.GetFertilityRate(slug, currentYear),
@@ -314,7 +297,6 @@ func (s *Server) handleCountryStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	s.jsonResponse(w, map[string]interface{}{
 		"status":    "ok",
@@ -322,12 +304,10 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
 func (s *Server) jsonResponse(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
 }
-
 
 func (s *Server) jsonError(w http.ResponseWriter, message string, status int) {
 	w.Header().Set("Content-Type", "application/json")
@@ -337,7 +317,6 @@ func (s *Server) jsonError(w http.ResponseWriter, message string, status int) {
 		"error":   message,
 	})
 }
-
 
 func ParsePort(port string) (int, error) {
 	p, err := strconv.Atoi(port)

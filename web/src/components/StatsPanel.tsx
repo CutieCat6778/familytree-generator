@@ -80,6 +80,16 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats, country, seed, re
     ? (stats.tertiary_education / stats.total_persons) * 100
     : 0;
 
+  const richPercent = stats.total_persons > 0
+    ? (stats.rich_count / stats.total_persons) * 100
+    : 0;
+
+  const formatCurrency = (value: number) => new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value);
+
   return (
     <div style={styles.panel}>
       <div style={styles.title}>Tree Statistics</div>
@@ -99,7 +109,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats, country, seed, re
         <span style={styles.value}>{referenceYear ?? new Date().getFullYear()}</span>
       </div>
 
-      {                     }
+      { }
       <div style={styles.section}>
         <div style={styles.sectionTitle}>Population</div>
         <div style={styles.stat}>
@@ -129,7 +139,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats, country, seed, re
         </div>
       </div>
 
-      {              }
+      { }
       <div style={styles.section}>
         <div style={styles.sectionTitle}>Age</div>
         <div style={styles.stat}>
@@ -143,7 +153,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats, country, seed, re
         </div>
       </div>
 
-      {                 }
+      { }
       <div style={styles.section}>
         <div style={styles.sectionTitle}>Family</div>
         <div style={styles.stat}>
@@ -180,7 +190,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats, country, seed, re
         </div>
       </div>
 
-      {                         }
+      { }
       <div style={styles.section}>
         <div style={styles.sectionTitle}>Education & Work</div>
         <div style={styles.stat}>
@@ -194,6 +204,32 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats, country, seed, re
         <div style={styles.stat}>
           <span style={styles.label}>Employed:</span>
           <span style={styles.value}>{stats.employed_count}</span>
+        </div>
+      </div>
+
+      <div style={styles.section}>
+        <div style={styles.sectionTitle}>Economy</div>
+        <div style={styles.stat}>
+          <span style={styles.label}>Avg GDP/Capita:</span>
+          <span style={styles.value}>{formatCurrency(stats.average_gdp_per_capita)}</span>
+        </div>
+
+        <div style={styles.stat}>
+          <span style={styles.label}>Avg Wealth Index:</span>
+          <span style={styles.value}>{stats.average_wealth_index.toFixed(2)}</span>
+        </div>
+
+        <div style={styles.stat}>
+          <span style={styles.label}>Avg Family Wealth:</span>
+          <span style={styles.value}>{formatCurrency(stats.average_family_wealth)}</span>
+        </div>
+
+        <div style={styles.stat}>
+          <span style={styles.label}>Rich:</span>
+          <span style={styles.value}>{stats.rich_count} ({richPercent.toFixed(0)}%)</span>
+        </div>
+        <div style={styles.bar}>
+          <div style={{ ...styles.barFill, width: `${richPercent}%`, backgroundColor: '#10b981' }} />
         </div>
       </div>
     </div>

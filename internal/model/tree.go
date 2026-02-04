@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-
 type FamilyTree struct {
 	ID           string             `json:"id"`
 	RootPersonID string             `json:"root_person_id"`
@@ -15,7 +14,6 @@ type FamilyTree struct {
 	GeneratedAt  time.Time          `json:"generated_at"`
 	Seed         int64              `json:"seed"`
 }
-
 
 func NewFamilyTree(id, country string, generations int, seed int64) *FamilyTree {
 	return &FamilyTree{
@@ -29,47 +27,38 @@ func NewFamilyTree(id, country string, generations int, seed int64) *FamilyTree 
 	}
 }
 
-
 func (t *FamilyTree) SetRootPerson(p *Person) {
 	t.RootPersonID = p.ID
 	t.AddPerson(p)
 }
 
-
 func (t *FamilyTree) GetRootPerson() *Person {
 	return t.Persons[t.RootPersonID]
 }
-
 
 func (t *FamilyTree) AddPerson(p *Person) {
 	t.Persons[p.ID] = p
 }
 
-
 func (t *FamilyTree) GetPerson(id string) *Person {
 	return t.Persons[id]
 }
-
 
 func (t *FamilyTree) AddFamily(f *Family) {
 	t.Families[f.ID] = f
 }
 
-
 func (t *FamilyTree) GetFamily(id string) *Family {
 	return t.Families[id]
 }
-
 
 func (t *FamilyTree) PersonCount() int {
 	return len(t.Persons)
 }
 
-
 func (t *FamilyTree) FamilyCount() int {
 	return len(t.Families)
 }
-
 
 func (t *FamilyTree) GetAncestors(personID string) []*Person {
 	ancestors := make([]*Person, 0)
@@ -102,7 +91,6 @@ func (t *FamilyTree) collectAncestors(p *Person, ancestors *[]*Person, visited m
 	}
 }
 
-
 func (t *FamilyTree) GetDescendants(personID string) []*Person {
 	descendants := make([]*Person, 0)
 	person := t.GetPerson(personID)
@@ -128,7 +116,6 @@ func (t *FamilyTree) collectDescendants(p *Person, descendants *[]*Person, visit
 	}
 }
 
-
 func (t *FamilyTree) GetSiblings(personID string) []*Person {
 	siblings := make([]*Person, 0)
 	person := t.GetPerson(personID)
@@ -136,7 +123,6 @@ func (t *FamilyTree) GetSiblings(personID string) []*Person {
 		return siblings
 	}
 
-	
 	if person.FatherID != nil {
 		father := t.GetPerson(*person.FatherID)
 		if father != nil {
@@ -153,7 +139,6 @@ func (t *FamilyTree) GetSiblings(personID string) []*Person {
 	return siblings
 }
 
-
 func (t *FamilyTree) GetGeneration(gen int) []*Person {
 	persons := make([]*Person, 0)
 	for _, p := range t.Persons {
@@ -164,7 +149,6 @@ func (t *FamilyTree) GetGeneration(gen int) []*Person {
 	return persons
 }
 
-
 func (t *FamilyTree) GetAllPersons() []*Person {
 	persons := make([]*Person, 0, len(t.Persons))
 	for _, p := range t.Persons {
@@ -172,7 +156,6 @@ func (t *FamilyTree) GetAllPersons() []*Person {
 	}
 	return persons
 }
-
 
 func (t *FamilyTree) GetAllFamilies() []*Family {
 	families := make([]*Family, 0, len(t.Families))

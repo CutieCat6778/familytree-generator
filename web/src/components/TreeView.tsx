@@ -15,7 +15,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
   const [svgWidth, setSvgWidth] = useState(800);
 
   useEffect(() => {
-    
+
     const updateDimensions = () => {
       if (svgRef.current?.parentElement) {
         setDimensions({
@@ -39,11 +39,11 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
     const { width, height } = dimensions;
     const margin = { top: 40, right: 40, bottom: 40, left: 40 };
 
-    
+
     const nodeMap = new Map<string, VisualizationNode>();
     data.nodes.forEach(n => nodeMap.set(n.id, n));
 
-    
+
     const childrenMap = new Map<string, string[]>();
     data.edges.filter(e => e.type === 'parent').forEach(e => {
       const children = childrenMap.get(e.source) || [];
@@ -51,7 +51,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
       childrenMap.set(e.source, children);
     });
 
-    
+
     interface TreeNodeData extends VisualizationNode {
       children?: TreeNodeData[];
     }
@@ -83,7 +83,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
     const rootData = buildTree(data.root_id, new Set());
     if (!rootData) return;
 
-    
+
     const root = d3.hierarchy(rootData);
     const leafNodes = root.leaves();
     const leafCount = leafNodes.length;
@@ -110,7 +110,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
 
     setSvgWidth((current) => (Math.abs(current - layoutWidth) < 1 ? current : layoutWidth));
 
-    
+
     const treeLayout = d3.tree<TreeNodeData>()
       .size([layoutWidth - margin.left - margin.right, layoutHeight - margin.top - margin.bottom])
       .separation((a, b) => (a.parent === b.parent ? 1.5 : 2));
@@ -120,7 +120,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
       treeData.descendants().map(node => [node.data.id, node]),
     );
 
-    
+
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.3, 3])
       .on('zoom', (event) => {
@@ -129,11 +129,11 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
 
     svg.call(zoom);
 
-    
+
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    
+
     g.selectAll('.link')
       .data(treeData.links())
       .join('path')
@@ -146,7 +146,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
         .y(d => d.y)
       );
 
-    
+
     const spouseEdges = data.edges.filter(e => e.type === 'spouse');
     const extraSpouseNodes: Array<{
       data: TreeNodeData;
@@ -216,7 +216,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
       }
     });
 
-    
+
     const nodes = g.selectAll('.node')
       .data(treeData.descendants())
       .join('g')
@@ -227,7 +227,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
         onPersonClick(d.data);
       });
 
-    
+
     nodes.append('rect')
       .attr('x', -60)
       .attr('y', -25)
@@ -238,7 +238,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
       .attr('stroke', d => d.data.id === selectedPersonId ? '#333' : d.data.id === data.root_id ? 'gold' : 'transparent')
       .attr('stroke-width', d => (d.data.id === selectedPersonId || d.data.id === data.root_id) ? 3 : 0);
 
-    
+
     nodes.append('text')
       .attr('text-anchor', 'middle')
       .attr('dy', -5)
@@ -250,7 +250,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
         return name.length > 15 ? name.substring(0, 12) + '...' : name;
       });
 
-    
+
     nodes.append('text')
       .attr('text-anchor', 'middle')
       .attr('dy', 12)
@@ -262,7 +262,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
           : `b. ${d.data.birth_year}`;
       });
 
-    
+
     const spouseNodes = g.selectAll('.spouse-node')
       .data(extraSpouseNodes)
       .join('g')
@@ -305,7 +305,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onPersonClick, selecte
           : `b. ${d.data.birth_year}`;
       });
 
-    
+
     const bounds = g.node()?.getBBox();
     if (bounds) {
       const scale = 1;

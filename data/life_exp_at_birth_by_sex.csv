@@ -1,0 +1,234 @@
+name,slug,years_total,years_female,years_male,date_of_information,ranking,region
+Monaco,monaco,86.73,88.85,84.78,2024,1,Europe
+San Marino,san-marino,86.03,87.44,84.54,2024,2,Europe
+Hong Kong,hong-kong,85.9,88.51,83.22,2024,3,East and Southeast Asia
+Japan,japan,85.15,88.18,82.13,2024,4,East and Southeast Asia
+South Korea,korea-south,84.64,87.51,81.56,2024,5,
+Saint Barthelemy,saint-barthelemy,84.63,87.14,81.81,2024,6,Central America and the Caribbean
+Andorra,andorra,84.46,86.48,82.55,2024,7,Europe
+French Polynesia,french-polynesia,84.44,86.86,82.16,2024,8,Australia and Oceania
+Switzerland,switzerland,84.37,86.2,82.48,2024,9,Europe
+Australia,australia,84.34,86.07,82.59,2024,10,Australia and Oceania
+Italy,italy,84.18,86.13,82.12,2024,11,Europe
+Singapore,singapore,84.13,86.6,81.67,2024,12,East and Southeast Asia
+Spain,spain,84.08,86.71,81.4,2024,13,Europe
+Liechtenstein,liechtenstein,84.06,85.64,82.39,2024,14,Europe
+Reunion,reunion,83.92,86.68,80.94,2024,15,
+Gibraltar,gibraltar,83.9,86.45,81.33,2024,16,Europe
+Malta,malta,83.78,85.63,81.88,2024,17,Europe
+Norway,norway,83.76,85.21,82.31,2024,18,Europe
+Sweden,sweden,83.73,85.45,82.03,2024,19,Europe
+France,france,83.7,86.42,80.86,2024,20,Europe
+Macao,macau,83.6,85.64,81.47,2024,21,
+Holy See,holy-see,83.41,85.44,81.31,2024,22,
+United Arab Emirates,united-arab-emirates,83.39,84.55,82.56,2024,23,Middle East
+Iceland,iceland,83.3,84.69,81.96,2024,24,Europe
+Canada,canada,83.05,85.16,80.94,2024,25,North America
+Martinique,martinique,83.04,85.95,79.81,2024,26,
+Ireland,ireland,82.92,84.86,81.01,2024,27,Europe
+Israel,israel,82.9,84.94,80.8,2024,28,Middle East
+Portugal,portugal,82.89,85.51,80.11,2024,29,Europe
+Qatar,qatar,82.83,83.72,82.13,2024,30,Middle East
+Bermuda,bermuda,82.83,86.14,79.44,2024,31,North America
+Luxembourg,luxembourg,82.64,84.17,81.08,2024,32,Europe
+Netherlands,netherlands,82.61,84.1,81.09,2024,33,Europe
+Belgium,belgium,82.59,84.69,80.46,2024,34,Europe
+Guadeloupe,guadeloupe,82.56,85.88,78.75,2024,35,
+New Zealand,new-zealand,82.52,84.1,80.93,2024,36,Australia and Oceania
+Austria,austria,82.45,84.69,80.17,2024,37,Europe
+Finland,finland,82.4,85.02,79.8,2024,38,Europe
+Greece,greece,82.39,84.73,79.95,2024,39,Europe
+Denmark,denmark,82.39,84.19,80.57,2024,40,Europe
+Puerto Rico,puerto-rico,82.27,85.63,78.72,2024,41,Central America and the Caribbean
+Cyprus,cyprus,82.15,84.05,80.24,2024,42,Europe
+Slovenia,slovenia,82.09,84.69,79.54,2024,43,Europe
+Germany,germany,81.86,84.11,79.62,2024,44,Europe
+United Kingdom,united-kingdom,81.75,83.57,79.89,2024,45,Europe
+Bahrain,bahrain,81.74,82.4,81.21,2024,46,Middle East
+Maldives,maldives,81.73,83.34,80.44,2024,47,South Asia
+Chile,chile,81.72,83.51,79.88,2024,48,South America
+Isle of Man,isle-of-man,81.39,83.4,79.42,2024,49,Europe
+Costa Rica,costa-rica,81.38,83.87,78.84,2024,50,Central America and the Caribbean
+Taiwan,taiwan,81.14,84.02,78.32,2024,51,East and Southeast Asia
+Kuwait,kuwait,80.97,82.3,79.83,2024,52,Middle East
+Cayman Islands,cayman-islands,80.9,83.28,78.62,2024,53,Central America and the Caribbean
+Faeroe Islands,faroe-islands,80.81,83.02,78.87,2024,54,
+Oman,oman,80.65,82.36,79.17,2024,55,Middle East
+Czech Republic,czechia,80.25,82.96,77.53,2024,56,
+Panama,panama,80.15,82.99,77.33,2024,57,Central America and the Caribbean
+Albania,albania,80.13,81.89,78.33,2024,58,Europe
+Anguilla,anguilla,79.86,83.05,76.67,2024,59,Central America and the Caribbean
+Falkland Islands,falkland-islands,79.78,81.7,77.81,2024,60,
+United States,united-states,79.76,82.23,77.39,2024,61,North America
+Estonia,estonia,79.64,83.42,75.57,2024,62,Europe
+Saudi Arabia,saudi-arabia,79.4,81.67,77.78,2024,63,Middle East
+New Caledonia,new-caledonia,79.23,81.67,76.83,2024,64,Australia and Oceania
+Northern Mariana Islands,northern-mariana-islands,79.22,81.12,77.59,2024,65,Australia and Oceania
+Poland,poland,79.15,82.74,75.53,2024,66,Europe
+Croatia,croatia,79.09,82.09,76.01,2024,67,Europe
+Wallis and Futuna,wallis-and-futuna,79.03,80,78.05,2024,68,Australia and Oceania
+China,china,79.02,81.78,76.38,2024,69,East and Southeast Asia
+Slovakia,slovakia,78.81,81.98,75.6,2024,70,Europe
+Cuba,cuba,78.62,81,76.25,2024,71,Central America and the Caribbean
+Uruguay,uruguay,78.62,82.29,74.78,2024,72,South America
+Turks and Caicos,turks-and-caicos-islands,78.5,80.72,76.35,2024,73,
+Bosnia and Herzegovina,bosnia-and-herzegovina,78.42,81.38,75.09,2024,74,Europe
+Turkey (Turkiye),turkey-turkiye,78.38,81.33,75.5,2024,75,Middle East
+Jordan,jordan,78.3,80.6,76.24,2024,76,Middle East
+Peru,peru,78.3,80.61,76.02,2024,77,South America
+Colombia,colombia,78.27,80.92,75.57,2024,78,South America
+Iran,iran,78.25,80.17,76.43,2024,79,Middle East
+Lebanon,lebanon,78.22,80.11,76.17,2024,80,Middle East
+Antigua and Barbuda,antigua-and-barbuda,78.11,80.75,75.12,2024,81,Central America and the Caribbean
+Sri Lanka,sri-lanka,78.03,81.04,74.85,2024,82,South Asia
+Caribbean Netherlands,caribbean-netherlands,77.95,80.6,75.75,2024,83,
+Ecuador,ecuador,77.94,80.62,75.28,2024,84,South America
+Argentina,argentina,77.83,80.28,75.3,2024,85,South America
+North Macedonia,north-macedonia,77.81,79.96,75.56,2024,86,Europe
+Guam,guam,77.81,81.88,74.11,2024,87,Australia and Oceania
+British Virgin Islands,british-virgin-islands,77.76,80.46,75.05,2024,88,Central America and the Caribbean
+Montenegro,montenegro,77.6,80.74,74.31,2024,89,Europe
+French Guiana,french-guiana,77.54,80.44,74.71,2024,90,
+Hungary,hungary,77.5,80.61,74.26,2024,91,Europe
+State of Palestine,state-of-palestine,77.42,79.75,74.96,2024,92,
+Tokelau,tokelau,77.42,79.28,75.33,2024,93,
+Curacao,curacao,77.34,81.22,73.06,2024,94,Central America and the Caribbean
+Serbia,serbia,77.33,80.5,74.09,2024,95,Europe
+Saint Helena,saint-helena-ascension-and-tristan-da-cunha,77.3,80.97,74.35,2024,96,
+Saint Pierre and Miquelon,saint-pierre-and-miquelon,77.28,81.87,73.34,2024,97,North America
+Malaysia,malaysia,77.16,79.82,74.81,2024,98,East and Southeast Asia
+Tunisia,tunisia,77.1,79.68,74.55,2024,99,Africa
+Thailand,thailand,77.06,81.36,72.92,2024,100,East and Southeast Asia
+Algeria,algeria,76.89,78.34,75.5,2024,101,Africa
+Sint Maarten,sint-maarten,76.86,79.92,74.17,2024,102,Central America and the Caribbean
+Aruba,aruba,76.78,79.19,74.14,2024,103,Central America and the Caribbean
+Montserrat,montserrat,76.66,79.23,74.58,2024,104,Central America and the Caribbean
+Barbados,barbados,76.64,79.05,74.09,2024,105,Central America and the Caribbean
+Latvia,latvia,76.63,80.85,72.13,2024,106,Europe
+Mayotte,mayotte,76.61,78.85,74.63,2024,107,
+Cabo Verde,cabo-verde,76.56,79.68,73.44,2024,108,Africa
+Lithuania,lithuania,76.48,81.05,71.81,2024,109,Europe
+Romania,romania,76.4,79.95,72.91,2024,110,Europe
+Brazil,brazil,76.37,79.46,73.33,2024,111,South America
+Armenia,armenia,76.18,79.87,71.95,2024,112,Central Asia
+US Virgin Islands,virgin-islands,76.15,81.73,71.17,2024,113,
+Bulgaria,bulgaria,76.13,79.66,72.7,2024,114,Europe
+Morocco,morocco,75.86,78.13,73.71,2024,115,Africa
+Cook Islands,cook-islands,75.85,79.48,72.44,2024,116,Australia and Oceania
+Brunei,brunei,75.83,78.07,73.81,2024,117,East and Southeast Asia
+Grenada,grenada,75.67,78.78,72.83,2024,118,Central America and the Caribbean
+Mexico,mexico,75.63,78.35,72.82,2024,119,North America
+Bangladesh,bangladesh,75.47,77.22,73.82,2024,120,South Asia
+Mauritius,mauritius,75.44,78.65,72.46,2024,121,Africa
+Nicaragua,nicaragua,75.43,77.9,72.81,2024,122,Central America and the Caribbean
+Libya,libya,75.18,77.83,72.71,2024,123,Africa
+Vietnam,vietnam,75.05,79.62,70.42,2024,124,East and Southeast Asia
+Ukraine,ukraine,75.02,79.67,70.18,2024,125,Europe
+Bahamas,bahamas-the,75.01,78.59,71.37,2024,126,
+Georgia,georgia,74.98,79.49,70.11,2024,127,Central Asia
+Belarus,belarus,74.97,79.52,70.14,2024,128,Europe
+Azerbaijan,azerbaijan,74.89,77.6,72.02,2024,129,Central Asia
+Kazakhstan,kazakhstan,74.81,78.77,70.59,2024,130,Central Asia
+Paraguay,paraguay,74.24,77.35,71.25,2024,131,South America
+Dominican Republic,dominican-republic,74.12,77.35,70.92,2024,132,Central America and the Caribbean
+Belize,belize,74.08,77,71.4,2024,133,Central America and the Caribbean
+Suriname,suriname,74.04,77.26,70.87,2024,134,South America
+North Korea,korea-north,73.98,76.16,71.77,2024,135,
+Trinidad and Tobago,trinidad-and-tobago,73.89,77.1,70.77,2024,136,Central America and the Caribbean
+Bhutan,bhutan,73.8,75.84,72.08,2024,137,South Asia
+Russia,russia,73.7,79.46,67.91,2024,138,Central Asia
+Syria,syria,73.43,75.91,70.96,2024,139,Middle East
+Tonga,tonga,73.39,76.84,69.79,2024,140,Australia and Oceania
+Honduras,honduras,73.39,76.03,70.8,2024,141,Central America and the Caribbean
+Seychelles,seychelles,73.28,76.98,70.37,2024,142,Africa
+American Samoa,american-samoa,73.25,76.28,70.55,2024,143,Australia and Oceania
+Saint Lucia,saint-lucia,73.15,76.75,69.74,2024,144,Central America and the Caribbean
+Guatemala,guatemala,73.04,75.37,70.71,2024,145,Central America and the Caribbean
+Venezuela,venezuela,73.01,76.99,69.22,2024,146,South America
+Uzbekistan,uzbekistan,72.78,75.84,69.79,2024,147,Central Asia
+El Salvador,el-salvador,72.74,76.91,68.23,2024,148,Central America and the Caribbean
+India,india,72.72,74.39,71.16,2024,149,South Asia
+Iraq,iraq,72.63,74.45,70.67,2024,150,Middle East
+Saint Kitts and Nevis,saint-kitts-and-nevis,72.58,76.44,68.96,2024,151,Central America and the Caribbean
+Mongolia,mongolia,72.49,77.11,68.01,2024,152,East and Southeast Asia
+Tajikistan,tajikistan,72.19,74.45,69.89,2024,153,Central Asia
+Egypt,egypt,72.16,74.41,69.98,2024,154,Africa
+Kyrgyzstan,kyrgyzstan,72.11,75.7,68.56,2024,155,Central Asia
+Samoa,samoa,72.08,74.14,70.17,2024,156,Australia and Oceania
+Vanuatu,vanuatu,72.02,74.49,69.89,2024,157,Australia and Oceania
+Western Sahara,western-sahara,71.98,74.22,70.24,2024,158,
+Jamaica,jamaica,71.86,74.45,69.27,2024,159,Central America and the Caribbean
+Saint Vincent and Grenadines,saint-vincent-and-the-grenadines,71.65,74.78,69.01,2024,160,
+Dominica,dominica,71.62,75.06,68.63,2024,161,Central America and the Caribbean
+Moldova,moldova,71.6,75.93,66.96,2024,162,Europe
+Indonesia,indonesia,71.58,73.77,69.42,2024,163,East and Southeast Asia
+Nepal,nepal,71.16,72.7,69.56,2024,164,South Asia
+Cambodia,cambodia,71.14,73.72,68.45,2024,165,East and Southeast Asia
+Solomon Islands,solomon-islands,70.98,72.52,69.58,2024,166,Australia and Oceania
+Guyana,guyana,70.57,74.35,66.84,2024,167,South America
+Turkmenistan,turkmenistan,70.45,73.33,67.24,2024,168,Central Asia
+Greenland,greenland,70.44,72.89,68.42,2024,169,North America
+Niue,niue,70.36,73.17,67.75,2024,170,
+Sao Tome and Principe,sao-tome-and-principe,70.26,74.26,66.73,2024,171,Africa
+Philippines,philippines,70.17,73.23,67.2,2024,172,East and Southeast Asia
+Yemen,yemen,69.73,71.88,67.63,2024,173,Middle East
+Laos,laos,69.7,72.05,67.47,2024,174,East and Southeast Asia
+Palau,palau,69.61,72.23,67.44,2024,175,Australia and Oceania
+Botswana,botswana,69.57,72.17,67.03,2024,176,Africa
+Eritrea,eritrea,69.4,71.48,67.23,2024,177,Africa
+Senegal,senegal,69.39,71.51,67.42,2024,178,Africa
+Mauritania,mauritania,69.16,71.2,67.09,2024,179,Africa
+Bolivia,bolivia,69.06,71.69,66.56,2024,180,South America
+Uganda,uganda,68.92,71.83,65.9,2024,181,Africa
+Gabon,gabon,68.88,71.64,66.4,2024,182,Africa
+Rwanda,rwanda,68.47,70.63,66.12,2024,183,Africa
+Timor-Leste,timor-leste,68.33,70.14,66.66,2024,184,East and Southeast Asia
+Ethiopia,ethiopia,68.15,71.58,64.88,2024,185,Africa
+Pakistan,pakistan,68.06,70.61,65.69,2024,186,South Asia
+Malawi,malawi,67.92,71.14,64.61,2024,187,Africa
+Namibia,namibia,67.81,71.78,63.73,2024,188,Africa
+Fiji,fiji,67.77,69.9,65.73,2024,189,Australia and Oceania
+Tanzania,tanzania,67.63,70.44,64.78,2024,190,Africa
+Tuvalu,tuvalu,67.56,71.19,64.2,2024,191,Australia and Oceania
+Myanmar,myanmar,67.5,70.8,64.37,2024,192,
+Comoros,comoros,67.48,69.69,65.43,2024,193,Africa
+Marshall Islands,marshall-islands,67.32,69.76,65.21,2024,194,Australia and Oceania
+Sudan,sudan,66.89,70.21,63.78,2024,195,Africa
+Zambia,zambia,66.88,69.27,64.42,2024,196,Africa
+Kiribati,kiribati,66.86,68.63,64.91,2024,197,Australia and Oceania
+Afghanistan,afghanistan,66.77,68.33,65.15,2024,198,South Asia
+South Africa,south-africa,66.66,70.16,63.12,2024,199,Africa
+Djibouti,djibouti,66.61,69.18,64.11,2024,200,Africa
+Papua New Guinea,papua-new-guinea,66.5,69.47,64.04,2024,201,East and Southeast Asia
+Gambia,gambia,66.45,68.18,64.71,2024,202,
+Congo,congo-republic-of-the,66.42,68.17,64.7,2024,203,
+Ghana,ghana,66.08,68.57,63.67,2024,204,Africa
+Haiti,haiti,65.45,68.83,62.21,2024,205,Central America and the Caribbean
+Angola,angola,65.17,67.73,62.62,2024,206,Africa
+Guinea-Bissau,guinea-bissau,64.59,66.91,62.13,2024,207,Africa
+Eswatini,eswatini,64.54,67.41,61.58,2024,208,Africa
+Cameroon,cameroon,64.51,66.79,62.3,2024,209,Africa
+Equatorial Guinea,equatorial-guinea,64.3,66.33,62.59,2024,210,Africa
+Madagascar,madagascar,64.25,66.06,62.51,2024,211,Africa
+Kenya,kenya,64.19,66.51,61.96,2024,212,Africa
+Mozambique,mozambique,64.14,67.11,60.83,2024,213,Africa
+Burundi,burundi,64.14,66.24,62.04,2024,214,Africa
+Zimbabwe,zimbabwe,63.63,65.9,61.01,2024,215,Africa
+Togo,togo,63.33,63.61,63.03,2024,216,Africa
+Liberia,liberia,62.62,63.97,61.27,2024,217,Africa
+Nauru,nauru,62.61,64.55,60.68,2024,218,Australia and Oceania
+Cote dIvoire,cote-divoire,62.44,64.66,60.47,2024,219,
+DR Congo,congo-democratic-republic-of-the,62.39,64.57,60.25,2024,220,
+Sierra Leone,sierra-leone,62.33,64.09,60.57,2024,221,Africa
+Niger,niger,61.88,62.9,60.9,2024,222,Africa
+Burkina Faso,burkina-faso,61.65,63.81,59.45,2024,223,Africa
+Benin,benin,61.32,62.81,59.84,2024,224,Africa
+Guinea,guinea,61.23,62.45,59.95,2024,225,Africa
+Mali,mali,61.11,62.62,59.66,2024,226,Africa
+Somalia,somalia,59.26,61.86,56.77,2024,227,Africa
+Lesotho,lesotho,58.63,61.29,55.85,2024,228,Africa
+Central African Republic,central-african-republic,58.15,60.06,55.97,2024,229,Africa
+South Sudan,south-sudan,57.97,60.98,54.99,2024,230,Africa
+Chad,chad,55.58,57.56,53.68,2024,231,Africa
+Nigeria,nigeria,54.95,55.3,54.6,2024,232,Africa
+Micronesia,micronesia-federated-states-of,,,,2024,233,

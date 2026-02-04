@@ -10,22 +10,24 @@ import (
 )
 
 type Config struct {
-	Country         string
-	Generations     int
-	Seed            int64
-	StartYear       int
-	RootGender      model.Gender
-	IncludeExtended bool
+	Country            string
+	Generations        int
+	Seed               int64
+	StartYear          int
+	RootGender         model.Gender
+	IncludeExtended    bool
+	LifeExpectancyMode LifeExpectancyMode
 }
 
 func DefaultConfig() Config {
 	return Config{
-		Country:         "germany",
-		Generations:     3,
-		Seed:            time.Now().UnixNano(),
-		StartYear:       1970,
-		RootGender:      "",
-		IncludeExtended: false,
+		Country:            "germany",
+		Generations:        3,
+		Seed:               time.Now().UnixNano(),
+		StartYear:          1970,
+		RootGender:         "",
+		IncludeExtended:    false,
+		LifeExpectancyMode: LifeExpectancyTotal,
 	}
 }
 
@@ -47,7 +49,7 @@ func NewEngine(config Config, repo *data.Repository) *Engine {
 		rng:    rng,
 	}
 
-	e.personGen = NewPersonGenerator(rng, repo, config.Country)
+	e.personGen = NewPersonGenerator(rng, repo, config.Country, config.LifeExpectancyMode)
 	e.familyBld = NewFamilyBuilder(rng, e.personGen)
 
 	return e
@@ -79,7 +81,118 @@ func (e *Engine) Generate() (*model.FamilyTree, error) {
 
 	e.generateDescendants(root, e.config.Generations-1)
 
+	e.applyReferenceYearMortality()
+
 	return e.tree, nil
+}
+
+func (e *Engine) applyReferenceYearMortality() {
+	referenceYear := e.calculateReferenceYear()
+	if referenceYear == 0 {
+		return
+	}
+
+	refDate := time.Date(referenceYear, time.December, 31, 0, 0, 0, 0, time.UTC)
+	prob := e.personGen.GetProbabilityEngine()
+
+	for _, p := range e.tree.GetAllPersons() {
+		maxAge := prob.MaxAllowedAge(p.BirthDate.Year(), p.Gender)
+		ageAtReference := referenceYear - p.BirthDate.Year()
+		if ageAtReference < 0 {
+			ageAtReference = 0
+		}
+
+		if p.DeathDate != nil && p.DeathDate.Before(p.BirthDate) {
+			adjusted := p.BirthDate
+			p.DeathDate = &adjusted
+			ensureDeathEvent(p)
+		}
+
+		if ageAtReference > maxAge {
+			proposed := e.personGen.randomDateAtAge(p.BirthDate, maxAge)
+			if proposed.After(refDate) {
+				proposed = refDate
+			}
+			if p.DeathDate == nil || p.DeathDate.After(proposed) {
+				p.DeathDate = &proposed
+				ensureDeathEvent(p)
+			}
+		} else if p.DeathDate != nil {
+			if p.AgeAtDeath() > maxAge {
+				proposed := e.personGen.randomDateAtAge(p.BirthDate, maxAge)
+				if proposed.After(refDate) {
+					proposed = refDate
+				}
+				p.DeathDate = &proposed
+				ensureDeathEvent(p)
+			}
+		}
+	}
+}
+
+func (e *Engine) calculateReferenceYear() int {
+	persons := e.tree.GetAllPersons()
+	if len(persons) == 0 {
+		return 0
+	}
+
+	maxGeneration := 0
+	for _, p := range persons {
+		if p.Generation > maxGeneration {
+			maxGeneration = p.Generation
+		}
+	}
+
+	var latestEvent time.Time
+	for _, p := range persons {
+		if p.Generation != maxGeneration {
+			continue
+		}
+		for _, ev := range p.Events {
+			if ev.Date.After(latestEvent) {
+				latestEvent = ev.Date
+			}
+		}
+		if p.BirthDate.After(latestEvent) {
+			latestEvent = p.BirthDate
+		}
+		if p.DeathDate != nil && p.DeathDate.After(latestEvent) {
+			latestEvent = *p.DeathDate
+		}
+	}
+
+	if !latestEvent.IsZero() {
+		return latestEvent.Year()
+	}
+
+	referenceYear := 0
+	for _, p := range persons {
+		birthYear := p.BirthDate.Year()
+		if birthYear > referenceYear {
+			referenceYear = birthYear
+		}
+	}
+	if referenceYear == 0 {
+		referenceYear = time.Now().Year()
+	}
+	return referenceYear
+}
+
+func ensureDeathEvent(person *model.Person) {
+	if person.DeathDate == nil {
+		return
+	}
+
+	for i := range person.Events {
+		if person.Events[i].Type == model.EventDeath {
+			person.Events[i].Date = *person.DeathDate
+			person.Events[i].Location = person.CurrentCountry
+			return
+		}
+	}
+
+	deathEvent := model.NewLifeEvent(model.EventDeath, *person.DeathDate, person.CurrentCountry)
+	person.Events = append(person.Events, deathEvent)
 }
 
 func (e *Engine) generateAncestors(person *model.Person, remainingGenerations int) {

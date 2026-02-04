@@ -30,6 +30,7 @@ func main() {
 	flag.IntVar(&cfg.StartYear, "start-year", cfg.StartYear, "Birth year of the root person")
 	flag.StringVar(&cfg.RootGender, "gender", cfg.RootGender, "Root person gender: M, F, or random")
 	flag.BoolVar(&cfg.IncludeExtended, "extended", cfg.IncludeExtended, "Include extended family (siblings)")
+	flag.StringVar(&cfg.LifeExpectancyMode, "life-expectancy", cfg.LifeExpectancyMode, "Life expectancy mode: total, female, male, or by_gender")
 	flag.BoolVar(&cfg.Verbose, "verbose", cfg.Verbose, "Enable verbose output")
 
 	
@@ -91,6 +92,7 @@ func main() {
 		fmt.Printf("  Start year: %d\n", cfg.StartYear)
 		fmt.Printf("  Seed: %d\n", cfg.Seed)
 		fmt.Printf("  Extended family: %v\n", cfg.IncludeExtended)
+		fmt.Printf("  Life expectancy: %s\n", cfg.LifeExpectancyMode)
 	}
 
 	

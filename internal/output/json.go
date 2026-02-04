@@ -9,7 +9,6 @@ import (
 	"github.com/familytree-generator/internal/model"
 )
 
-
 func WriteJSON(tree *model.FamilyTree, filepath string) error {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -27,7 +26,6 @@ func WriteJSON(tree *model.FamilyTree, filepath string) error {
 	return nil
 }
 
-
 func WriteJSONCompact(tree *model.FamilyTree, filepath string) error {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -44,29 +42,25 @@ func WriteJSONCompact(tree *model.FamilyTree, filepath string) error {
 	return nil
 }
 
-
 func TreeToJSON(tree *model.FamilyTree) ([]byte, error) {
 	return json.MarshalIndent(tree, "", "  ")
 }
-
 
 func TreeToJSONCompact(tree *model.FamilyTree) ([]byte, error) {
 	return json.Marshal(tree)
 }
 
-
 type VisualizationData struct {
-	ID          string                `json:"id"`
-	RootID      string                `json:"root_id"`
-	Country     string                `json:"country"`
-	Generations int                   `json:"generations"`
-	Seed        int64                 `json:"seed"`
-	ReferenceYear int                `json:"reference_year"`
-	Nodes       []VisualizationNode   `json:"nodes"`
-	Edges       []VisualizationEdge   `json:"edges"`
-	Stats       VisualizationStats    `json:"stats"`
+	ID            string              `json:"id"`
+	RootID        string              `json:"root_id"`
+	Country       string              `json:"country"`
+	Generations   int                 `json:"generations"`
+	Seed          int64               `json:"seed"`
+	ReferenceYear int                 `json:"reference_year"`
+	Nodes         []VisualizationNode `json:"nodes"`
+	Edges         []VisualizationEdge `json:"edges"`
+	Stats         VisualizationStats  `json:"stats"`
 }
-
 
 type VisualizationNode struct {
 	ID                  string  `json:"id"`
@@ -97,33 +91,34 @@ type VisualizationNode struct {
 	CurrentCountry      string  `json:"current_country"`
 }
 
-
 type VisualizationEdge struct {
 	Source string `json:"source"`
 	Target string `json:"target"`
-	Type   string `json:"type"` 
+	Type   string `json:"type"`
 }
-
 
 type VisualizationStats struct {
-	TotalPersons        int     `json:"total_persons"`
-	TotalFamilies       int     `json:"total_families"`
-	LivingPersons       int     `json:"living_persons"`
-	DeceasedPersons     int     `json:"deceased_persons"`
-	AverageAge          float64 `json:"average_age"`
-	OldestPerson        int     `json:"oldest_person_age"`
-	TotalChildren       int     `json:"total_children"`
-	AverageChildren     float64 `json:"average_children"`
-	DivorceCount        int     `json:"divorce_count"`
-	SingleCount         int     `json:"single_count"`
-	MarriedCount        int     `json:"married_count"`
-	MaleCount           int     `json:"male_count"`
-	FemaleCount         int     `json:"female_count"`
-	BirthsOutsideMarriage int   `json:"births_outside_marriage"`
-	TertiaryEducation   int     `json:"tertiary_education"`
-	EmployedCount       int     `json:"employed_count"`
+	TotalPersons          int     `json:"total_persons"`
+	TotalFamilies         int     `json:"total_families"`
+	LivingPersons         int     `json:"living_persons"`
+	DeceasedPersons       int     `json:"deceased_persons"`
+	AverageAge            float64 `json:"average_age"`
+	OldestPerson          int     `json:"oldest_person_age"`
+	TotalChildren         int     `json:"total_children"`
+	AverageChildren       float64 `json:"average_children"`
+	DivorceCount          int     `json:"divorce_count"`
+	SingleCount           int     `json:"single_count"`
+	MarriedCount          int     `json:"married_count"`
+	MaleCount             int     `json:"male_count"`
+	FemaleCount           int     `json:"female_count"`
+	BirthsOutsideMarriage int     `json:"births_outside_marriage"`
+	TertiaryEducation     int     `json:"tertiary_education"`
+	EmployedCount         int     `json:"employed_count"`
+	AverageGDPPerCapita   float64 `json:"average_gdp_per_capita"`
+	AverageWealthIndex    float64 `json:"average_wealth_index"`
+	AverageFamilyWealth   float64 `json:"average_family_wealth"`
+	RichCount             int     `json:"rich_count"`
 }
-
 
 func WriteVisualizationJSON(tree *model.FamilyTree, filepath string) error {
 	data := TreeToVisualizationData(tree)
@@ -143,7 +138,6 @@ func WriteVisualizationJSON(tree *model.FamilyTree, filepath string) error {
 
 	return nil
 }
-
 
 func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 	persons := tree.GetAllPersons()
@@ -188,21 +182,26 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 	}
 
 	data := &VisualizationData{
-		ID:          tree.ID,
-		RootID:      tree.RootPersonID,
-		Country:     tree.Country,
-		Generations: tree.Generations,
-		Seed:        tree.Seed,
+		ID:            tree.ID,
+		RootID:        tree.RootPersonID,
+		Country:       tree.Country,
+		Generations:   tree.Generations,
+		Seed:          tree.Seed,
 		ReferenceYear: referenceYear,
-		Nodes:       make([]VisualizationNode, 0),
-		Edges:       make([]VisualizationEdge, 0),
+		Nodes:         make([]VisualizationNode, 0),
+		Edges:         make([]VisualizationEdge, 0),
 	}
 
 	var totalAge float64
 	var ageCount int
 	var oldestAge int
+	var gdpTotal float64
+	var gdpCount int
+	var wealthIndexTotal float64
+	var wealthIndexCount int
+	var familyWealthTotal float64
+	var familyWealthCount int
 
-	
 	for _, p := range persons {
 		var deathYear *int
 		if p.DeathDate != nil {
@@ -240,21 +239,18 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 		}
 		data.Nodes = append(data.Nodes, node)
 
-		
 		if p.IsAlive() {
 			data.Stats.LivingPersons++
 		} else {
 			data.Stats.DeceasedPersons++
 		}
 
-		
 		if p.Gender == model.Male {
 			data.Stats.MaleCount++
 		} else {
 			data.Stats.FemaleCount++
 		}
 
-		
 		switch p.MaritalStatus {
 		case model.Single:
 			data.Stats.SingleCount++
@@ -264,19 +260,32 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 			data.Stats.DivorceCount++
 		}
 
-		
 		if p.Education == model.Tertiary {
 			data.Stats.TertiaryEducation++
 		}
 
-		
 		if p.Employment == model.Employed {
 			data.Stats.EmployedCount++
 		}
 
-		
 		if p.BornOutsideMarriage {
 			data.Stats.BirthsOutsideMarriage++
+		}
+
+		if p.GDPPerCapita > 0 {
+			gdpTotal += p.GDPPerCapita
+			gdpCount++
+		}
+		if p.WealthIndex > 0 {
+			wealthIndexTotal += p.WealthIndex
+			wealthIndexCount++
+		}
+		if p.FamilyWealth > 0 {
+			familyWealthTotal += p.FamilyWealth
+			familyWealthCount++
+		}
+		if p.IsRich {
+			data.Stats.RichCount++
 		}
 
 		age := p.AgeAtDeath()
@@ -293,7 +302,6 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 		}
 	}
 
-	
 	for _, p := range persons {
 		if p.FatherID != nil {
 			data.Edges = append(data.Edges, VisualizationEdge{
@@ -311,7 +319,6 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 		}
 	}
 
-	
 	seen := make(map[string]bool)
 	for _, p := range persons {
 		for _, spouseID := range p.SpouseIDs {
@@ -328,15 +335,22 @@ func TreeToVisualizationData(tree *model.FamilyTree) *VisualizationData {
 		}
 	}
 
-	
 	data.Stats.TotalPersons = tree.PersonCount()
 	data.Stats.TotalFamilies = tree.FamilyCount()
 	if ageCount > 0 {
 		data.Stats.AverageAge = totalAge / float64(ageCount)
 	}
 	data.Stats.OldestPerson = oldestAge
+	if gdpCount > 0 {
+		data.Stats.AverageGDPPerCapita = gdpTotal / float64(gdpCount)
+	}
+	if wealthIndexCount > 0 {
+		data.Stats.AverageWealthIndex = wealthIndexTotal / float64(wealthIndexCount)
+	}
+	if familyWealthCount > 0 {
+		data.Stats.AverageFamilyWealth = familyWealthTotal / float64(familyWealthCount)
+	}
 
-	
 	for _, f := range tree.GetAllFamilies() {
 		data.Stats.TotalChildren += f.ChildCount()
 	}

@@ -26,6 +26,8 @@ type SurnameRecord struct {
 	Rank          int
 	LocalizedName string
 	RomanizedName string
+	Percentage    float64
+	Count         int
 }
 
 type IdentityData struct {
@@ -135,11 +137,23 @@ func (id *IdentityData) loadSurnames(filepath string) error {
 
 		rank, _ := strconv.Atoi(row[1])
 
+		percentage, err := strconv.ParseFloat(strings.TrimSpace(row[7]), 64)
+		if err != nil {
+			percentage = 0.0
+		}
+
+		count, err := strconv.Atoi(strings.TrimSpace(row[6]))
+		if err != nil {
+			count = 0
+		}
+
 		record := SurnameRecord{
 			Country:       strings.TrimSpace(row[0]),
 			Rank:          rank,
 			LocalizedName: strings.TrimSpace(row[4]),
 			RomanizedName: strings.TrimSpace(row[5]),
+			Percentage:    percentage,
+			Count:         count,
 		}
 
 		if record.RomanizedName == "" {

@@ -10,29 +10,26 @@ import (
 	"github.com/familytree-generator/pkg/rand"
 )
 
-
 type PersonGenerator struct {
-	rng      *rand.SeededRandom
-	repo     *data.Repository
-	prob     *ProbabilityEngine
-	country  string
-	idCounter uint64
+	rng            *rand.SeededRandom
+	repo           *data.Repository
+	prob           *ProbabilityEngine
+	country        string
+	idCounter      uint64
 	countryOptions []string
 }
 
-
-func NewPersonGenerator(rng *rand.SeededRandom, repo *data.Repository, country string) *PersonGenerator {
+func NewPersonGenerator(rng *rand.SeededRandom, repo *data.Repository, country string, lifeExpectancyMode LifeExpectancyMode) *PersonGenerator {
 	stats := repo.GetCountryStats(country)
 	return &PersonGenerator{
-		rng:       rng,
-		repo:      repo,
-		prob:      NewProbabilityEngine(rng, stats, repo, country),
-		country:   country,
-		idCounter: 0,
+		rng:            rng,
+		repo:           repo,
+		prob:           NewProbabilityEngine(rng, stats, repo, country, lifeExpectancyMode),
+		country:        country,
+		idCounter:      0,
 		countryOptions: repo.GetAvailableCountrySlugs(),
 	}
 }
-
 
 type PersonOptions struct {
 	Gender       model.Gender
@@ -40,39 +37,33 @@ type PersonOptions struct {
 	Generation   int
 	FatherID     *string
 	MotherID     *string
-	LastName     string 
+	LastName     string
 	WealthIndex  *float64
+	MinAliveDate *time.Time
 }
-
 
 func (g *PersonGenerator) GeneratePerson(opts PersonOptions) *model.Person {
 	g.idCounter++
 	id := fmt.Sprintf("P%05d", g.idCounter)
 
-	
 	gender := opts.Gender
 	if gender == "" {
 		gender = g.prob.Gender()
 	}
 
-	
 	firstName := g.generateFirstName(gender, opts.BirthYear)
 	lastName := opts.LastName
 	if lastName == "" {
 		lastName = g.generateLastName()
 	}
 
-	
 	birthDate := g.generateBirthDate(opts.BirthYear)
 
-	
 	person := model.NewPerson(id, firstName, lastName, gender, birthDate, g.country, opts.Generation)
 
-	
 	person.FatherID = opts.FatherID
 	person.MotherID = opts.MotherID
 
-	
 	person.BornOutsideMarriage = g.prob.ShouldBeBornOutsideMarriage(opts.BirthYear)
 	person.Underweight = g.prob.ShouldBeUnderweight()
 	person.Residence = g.determineResidenceForCountry(g.country, opts.BirthYear)
@@ -80,29 +71,27 @@ func (g *PersonGenerator) GeneratePerson(opts PersonOptions) *model.Person {
 	person.WealthIndex = g.getWealthIndex(opts.WealthIndex)
 	g.assignWealth(person)
 
-	
 	person.Health = g.prob.GenerateHealthProfile()
 
-	
-	deathAge := g.prob.CalculateDeathAge(person.Health, opts.BirthYear)
+	deathAge := g.prob.CalculateDeathAge(person.Health, opts.BirthYear, gender)
 
-	
 	if g.prob.ShouldDieInInfancy() {
 		deathAge = 0
 		infantDeathDate := birthDate.AddDate(0, g.rng.IntRange(0, 11), g.rng.IntRange(0, 28))
 		person.DeathDate = &infantDeathDate
 	} else if g.prob.ShouldDieInYouth(opts.BirthYear) {
-		
+
 		deathAge = g.rng.IntRange(1, 14)
 		youthDeathDate := birthDate.AddDate(deathAge, g.rng.IntRange(0, 11), g.rng.IntRange(1, 28))
 		person.DeathDate = &youthDeathDate
 	} else if deathAge <= person.Age(time.Now()) {
-		
+
 		deathDate := birthDate.AddDate(deathAge, g.rng.IntRange(0, 11), g.rng.IntRange(1, 28))
 		person.DeathDate = &deathDate
 	}
 
-	
+	g.applySafetyConstraints(person, opts.BirthYear, opts.MinAliveDate)
+
 	currentAge := person.Age(time.Now())
 	if person.DeathDate != nil {
 		currentAge = person.AgeAtDeath()
@@ -111,16 +100,13 @@ func (g *PersonGenerator) GeneratePerson(opts PersonOptions) *model.Person {
 	person.Education = g.prob.DetermineEducation()
 	person.Employment = g.prob.DetermineEmployment(currentAge)
 
-	
 	person.MaritalStatus = model.Single
 
-	
 	birthEvent := model.NewLifeEvent(model.EventBirth, birthDate, g.country)
 	person.Events = append(person.Events, birthEvent)
 
 	g.maybeMigrate(person)
 
-	
 	if person.DeathDate != nil {
 		deathEvent := model.NewLifeEvent(model.EventDeath, *person.DeathDate, person.CurrentCountry)
 		person.Events = append(person.Events, deathEvent)
@@ -129,23 +115,21 @@ func (g *PersonGenerator) GeneratePerson(opts PersonOptions) *model.Person {
 	return person
 }
 
-
 func (g *PersonGenerator) generateFirstName(gender model.Gender, birthYear int) string {
 	genderStr := string(gender)
 	names := g.repo.GetForenamesByGender(g.country, genderStr)
 
 	if len(names) == 0 {
-		
+
 		if gender == model.Male {
 			return rand.Choice(g.rng, []string{"John", "James", "William", "Michael", "David"})
 		}
 		return rand.Choice(g.rng, []string{"Mary", "Elizabeth", "Sarah", "Emma", "Anna"})
 	}
 
-	
 	weights := make([]float64, len(names))
 	for i, n := range names {
-		
+
 		weight := 1.0 / float64(n.Index+1)
 		if n.Year > 0 && birthYear > 0 {
 			yearDiff := math.Abs(float64(n.Year - birthYear))
@@ -163,46 +147,139 @@ func (g *PersonGenerator) generateFirstName(gender model.Gender, birthYear int) 
 	return name
 }
 
-
 func (g *PersonGenerator) generateLastName() string {
 	surnames := g.repo.GetSurnames(g.country)
 
 	if len(surnames) == 0 {
-		
 		return rand.Choice(g.rng, []string{"Smith", "Johnson", "Williams", "Brown", "Jones"})
 	}
 
-	
 	weights := make([]float64, len(surnames))
-	rankCounts := make(map[int]int, len(surnames))
+
+	hasPct := false
 	for _, s := range surnames {
-		rankCounts[s.Rank]++
-	}
-	for i, s := range surnames {
-		
-		
-		weight := 1.0 / float64(s.Rank+1)
-		if count := rankCounts[s.Rank]; count > 1 {
-			weight /= float64(count)
+		if s.Percentage > 0 {
+			hasPct = true
+			break
 		}
-		weights[i] = weight
+	}
+
+	if hasPct {
+		for i, s := range surnames {
+			if s.Percentage > 0 {
+				weights[i] = s.Percentage
+			} else {
+				weights[i] = 0
+			}
+		}
+	} else {
+		var totalCount int64
+		for _, s := range surnames {
+			if s.Count > 0 {
+				totalCount += int64(s.Count)
+			}
+		}
+
+		if totalCount > 0 {
+			for i, s := range surnames {
+				if s.Count > 0 {
+					weights[i] = float64(s.Count) / float64(totalCount)
+				} else {
+					weights[i] = 0
+				}
+			}
+		} else {
+			rankCounts := make(map[int]int, len(surnames))
+			for _, s := range surnames {
+				rankCounts[s.Rank]++
+			}
+			for i, s := range surnames {
+				weight := 1.0 / float64(s.Rank+1)
+				if c := rankCounts[s.Rank]; c > 1 {
+					weight /= float64(c)
+				}
+				weights[i] = weight
+			}
+		}
+	}
+
+	allZero := true
+	for _, w := range weights {
+		if w > 0 {
+			allZero = false
+			break
+		}
+	}
+	if allZero {
+		idx := g.rng.Intn(len(surnames))
+		return pickSurnameName(surnames[idx])
 	}
 
 	idx := g.rng.WeightedChoice(weights)
-	name := surnames[idx].RomanizedName
-	if name == "" {
-		name = surnames[idx].LocalizedName
-	}
-
-	return name
+	return pickSurnameName(surnames[idx])
 }
 
+func pickSurnameName(s data.SurnameRecord) string {
+	if s.RomanizedName != "" {
+		return s.RomanizedName
+	}
+	if s.LocalizedName != "" {
+		return s.LocalizedName
+	}
+	// last resort: avoid returning empty string
+	return "Smith"
+}
 
 func (g *PersonGenerator) generateBirthDate(year int) time.Time {
 	month := g.rng.IntRange(1, 12)
-	day := g.rng.IntRange(1, 28) 
+	day := g.rng.IntRange(1, 28)
 
 	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+}
+
+func (g *PersonGenerator) randomDateAtAge(birthDate time.Time, ageYears int) time.Time {
+	return birthDate.AddDate(ageYears, g.rng.IntRange(0, 11), g.rng.IntRange(1, 28))
+}
+
+func (g *PersonGenerator) applySafetyConstraints(person *model.Person, birthYear int, minAliveDate *time.Time) {
+	var minDate *time.Time
+	if minAliveDate != nil {
+		value := *minAliveDate
+		if value.Before(person.BirthDate) {
+			value = person.BirthDate
+		}
+		minDate = &value
+		if person.DeathDate != nil && person.DeathDate.Before(*minDate) {
+			adjusted := value.AddDate(0, g.rng.IntRange(0, 6), g.rng.IntRange(0, 28))
+			person.DeathDate = &adjusted
+		}
+	}
+
+	maxAge := g.prob.MaxAllowedAge(birthYear, person.Gender)
+
+	if person.DeathDate != nil {
+		if person.DeathDate.Before(person.BirthDate) {
+			adjusted := person.BirthDate
+			person.DeathDate = &adjusted
+			ensureDeathEvent(person)
+		}
+		if person.AgeAtDeath() > maxAge {
+			adjusted := g.randomDateAtAge(person.BirthDate, maxAge)
+			person.DeathDate = &adjusted
+			ensureDeathEvent(person)
+		}
+	} else if person.Age(time.Now()) > maxAge {
+		adjusted := g.randomDateAtAge(person.BirthDate, maxAge)
+		person.DeathDate = &adjusted
+		ensureDeathEvent(person)
+	}
+
+	if minDate != nil && person.DeathDate != nil && person.DeathDate.Before(*minDate) {
+		minDateValue := *minDate
+		adjusted := minDateValue.AddDate(0, g.rng.IntRange(0, 6), g.rng.IntRange(0, 28))
+		person.DeathDate = &adjusted
+		ensureDeathEvent(person)
+	}
 }
 
 func (g *PersonGenerator) getWealthIndex(value *float64) float64 {
@@ -298,9 +375,8 @@ func (g *PersonGenerator) maybeMigrate(person *model.Person) {
 	g.assignWealth(person)
 }
 
-
 func (g *PersonGenerator) GenerateSpouse(person *model.Person) *model.Person {
-	
+
 	var spouseGender model.Gender
 	if person.Gender == model.Male {
 		spouseGender = model.Female
@@ -308,56 +384,53 @@ func (g *PersonGenerator) GenerateSpouse(person *model.Person) *model.Person {
 		spouseGender = model.Male
 	}
 
-	
 	ageDiff := g.rng.IntRange(-5, 5)
 	spouseBirthYear := person.BirthDate.Year() + ageDiff
 
 	spouseWealth := g.blendWealthIndex(person.WealthIndex, 0.7)
 	spouse := g.GeneratePerson(PersonOptions{
-		Gender:     spouseGender,
-		BirthYear:  spouseBirthYear,
-		Generation: person.Generation,
+		Gender:      spouseGender,
+		BirthYear:   spouseBirthYear,
+		Generation:  person.Generation,
 		WealthIndex: &spouseWealth,
 	})
 
 	return spouse
 }
 
-
 func (g *PersonGenerator) GenerateChild(father, mother *model.Person, childIndex int) *model.Person {
-	
+
 	birthYear := g.prob.CalculateChildBirthYear(mother.BirthDate.Year(), childIndex)
 
-	
 	lastName := father.LastName
 	parentWealth := (father.WealthIndex + mother.WealthIndex) / 2
 	childWealth := g.blendWealthIndex(parentWealth, 0.7)
 
 	child := g.GeneratePerson(PersonOptions{
-		BirthYear:  birthYear,
-		Generation: father.Generation + 1,
-		FatherID:   &father.ID,
-		MotherID:   &mother.ID,
-		LastName:   lastName,
+		BirthYear:   birthYear,
+		Generation:  father.Generation + 1,
+		FatherID:    &father.ID,
+		MotherID:    &mother.ID,
+		LastName:    lastName,
 		WealthIndex: &childWealth,
 	})
 
 	return child
 }
 
-
 func (g *PersonGenerator) GenerateParent(child *model.Person, gender model.Gender) *model.Person {
 	birthYear := g.prob.CalculateParentBirthYear(child.BirthDate.Year(), gender)
 	parentWealth := g.blendWealthIndex(child.WealthIndex, 0.6)
+	minAliveDate := child.BirthDate
 
 	opts := PersonOptions{
-		Gender:     gender,
-		BirthYear:  birthYear,
-		Generation: child.Generation - 1,
-		WealthIndex: &parentWealth,
+		Gender:       gender,
+		BirthYear:    birthYear,
+		Generation:   child.Generation - 1,
+		WealthIndex:  &parentWealth,
+		MinAliveDate: &minAliveDate,
 	}
 
-	
 	if gender == model.Male && child.LastName != "" {
 		opts.LastName = child.LastName
 	}
@@ -365,13 +438,11 @@ func (g *PersonGenerator) GenerateParent(child *model.Person, gender model.Gende
 	return g.GeneratePerson(opts)
 }
 
-
 func (g *PersonGenerator) GenerateSibling(person *model.Person, father, mother *model.Person, siblingIndex int) *model.Person {
-	
+
 	ageDiff := g.rng.IntRange(-8, 8)
 	birthYear := person.BirthDate.Year() + ageDiff
 
-	
 	minBirthYear := mother.BirthDate.Year() + 18
 	if birthYear < minBirthYear {
 		birthYear = minBirthYear + siblingIndex*2
@@ -380,22 +451,20 @@ func (g *PersonGenerator) GenerateSibling(person *model.Person, father, mother *
 	parentWealth := (father.WealthIndex + mother.WealthIndex) / 2
 	siblingWealth := g.blendWealthIndex(parentWealth, 0.8)
 	sibling := g.GeneratePerson(PersonOptions{
-		BirthYear:  birthYear,
-		Generation: person.Generation,
-		FatherID:   &father.ID,
-		MotherID:   &mother.ID,
-		LastName:   father.LastName,
+		BirthYear:   birthYear,
+		Generation:  person.Generation,
+		FatherID:    &father.ID,
+		MotherID:    &mother.ID,
+		LastName:    father.LastName,
 		WealthIndex: &siblingWealth,
 	})
 
 	return sibling
 }
 
-
 func (g *PersonGenerator) GetProbabilityEngine() *ProbabilityEngine {
 	return g.prob
 }
-
 
 func (g *PersonGenerator) GetCurrentID() uint64 {
 	return g.idCounter

@@ -102,6 +102,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({ onGenerate, onErro
   const [startYear, setStartYear] = useState(1970);
   const [gender, setGender] = useState('');
   const [extended, setExtended] = useState(false);
+  const [lifeExpectancyMode, setLifeExpectancyMode] = useState<'total' | 'female' | 'male' | 'by_gender'>('total');
 
   useEffect(() => {
     
@@ -132,6 +133,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({ onGenerate, onErro
         generations,
         start_year: startYear,
         include_extended: extended,
+        life_expectancy_mode: lifeExpectancyMode,
       };
 
       if (seed) {
@@ -259,6 +261,21 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({ onGenerate, onErro
             />
             Include siblings
           </label>
+        </div>
+
+        <div style={styles.field}>
+          <label style={styles.label}>Life Expectancy</label>
+          <select
+            style={styles.select}
+            value={lifeExpectancyMode}
+            onChange={e => setLifeExpectancyMode(e.target.value as 'total' | 'female' | 'male' | 'by_gender')}
+          >
+            <option value="total">Total (overall)</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="by_gender">By gender</option>
+          </select>
+          <div style={styles.hint}>Controls which life expectancy baseline to use</div>
         </div>
       </div>
 
